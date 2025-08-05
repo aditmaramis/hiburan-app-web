@@ -1,7 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import { Button } from '@/components/ui/button';
+import EventList from '@/components/dashboard/EventList';
 
 interface User {
 	id: string;
@@ -11,19 +13,20 @@ interface User {
 }
 
 interface Event {
-	id: string;
+	id: number;
 	title: string;
-	description: string;
+	description: string | null;
 	date: string;
 	time: string;
 	location: string;
 	price: number;
-	availableSeats: number;
-	totalSeats: number;
+	available_seats: number;
+	total_seats: number;
 	category: string;
-	image?: string;
-	organizerId: string;
-	createdAt: string;
+	image?: string | null;
+	organizer_id: number;
+	created_at: string;
+	updated_at: string;
 }
 
 interface Transaction {
@@ -67,7 +70,95 @@ export default function DashboardPage() {
 	>('overview');
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState('');
+	const [successMessage, setSuccessMessage] = useState('');
 	const router = useRouter();
+
+	const fetchDashboardData = useCallback(async () => {
+		try {
+			console.log('fetchDashboardData: Starting...');
+			setIsLoading(true);
+			console.log('fetchDashboardData: Set loading to true');
+
+			// Get token from localStorage
+			const token = localStorage.getItem('token');
+			if (!token) {
+				setError('Authentication required. Please log in again.');
+				return;
+			}
+
+			// Fetch events from API
+			const eventsResponse = await axios.get(
+				'http://localhost:8000/api/events/organizer',
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+
+			const fetchedEvents = eventsResponse.data.events || [];
+
+			// Mock dashboard stats for now (these can be implemented later)
+			const mockDashboardData: DashboardData = {
+				totalEvents: fetchedEvents.length,
+				totalRevenue: fetchedEvents.reduce(
+					(sum: number, event: Event) =>
+						sum +
+						Number(event.price) * (event.total_seats - event.available_seats),
+					0
+				),
+				totalAttendees: fetchedEvents.reduce(
+					(sum: number, event: Event) =>
+						sum + (event.total_seats - event.available_seats),
+					0
+				),
+				pendingTransactions: 0,
+				monthlyRevenue: [
+					{ month: 'Jan', revenue: 2000 },
+					{ month: 'Feb', revenue: 3000 },
+					{ month: 'Mar', revenue: 4000 },
+					{ month: 'Apr', revenue: 6000 },
+				],
+				eventStats: fetchedEvents.map((event: Event) => ({
+					eventId: event.id.toString(),
+					title: event.title,
+					attendees: event.total_seats - event.available_seats,
+					revenue:
+						Number(event.price) * (event.total_seats - event.available_seats),
+				})),
+			};
+
+			// Mock transactions for now
+			const mockTransactions: Transaction[] = [];
+
+			setDashboardData(mockDashboardData);
+			setEvents(fetchedEvents);
+			setTransactions(mockTransactions);
+			console.log('fetchDashboardData: Data set successfully');
+		} catch (error: unknown) {
+			console.error('fetchDashboardData: Error occurred:', error);
+			if (error && typeof error === 'object' && 'response' in error) {
+				const axiosError = error as {
+					response: { data?: { message?: string }; status?: number };
+				};
+				if (axiosError.response?.status === 401) {
+					setError('Authentication failed. Please log in again.');
+					router.push('/auth/login');
+				} else {
+					setError(
+						axiosError.response?.data?.message ||
+							'Failed to load dashboard data'
+					);
+				}
+			} else {
+				setError('Network error. Please check your connection.');
+			}
+		} finally {
+			console.log('fetchDashboardData: Setting loading to false');
+			setIsLoading(false);
+			console.log('fetchDashboardData: Complete');
+		}
+	}, [router]);
 
 	// Check authentication and fetch initial data
 	useEffect(() => {
@@ -87,123 +178,7 @@ export default function DashboardPage() {
 
 		setUser(parsedUser);
 		fetchDashboardData();
-	}, [router]);
-
-	const fetchDashboardData = async () => {
-		try {
-			console.log('fetchDashboardData: Starting...');
-			setIsLoading(true);
-			console.log('fetchDashboardData: Set loading to true');
-
-			// For now, use mock data until we create the API endpoints
-			const mockDashboardData: DashboardData = {
-				totalEvents: 5,
-				totalRevenue: 15000,
-				totalAttendees: 250,
-				pendingTransactions: 3,
-				monthlyRevenue: [
-					{ month: 'Jan', revenue: 2000 },
-					{ month: 'Feb', revenue: 3000 },
-					{ month: 'Mar', revenue: 4000 },
-					{ month: 'Apr', revenue: 6000 },
-				],
-				eventStats: [
-					{ eventId: '1', title: 'Jazz Night', attendees: 50, revenue: 2500 },
-					{
-						eventId: '2',
-						title: 'Rock Concert',
-						attendees: 100,
-						revenue: 5000,
-					},
-				],
-			};
-
-			const mockEvents: Event[] = [
-				{
-					id: '1',
-					title: 'Jazz Night',
-					description: 'A smooth jazz evening',
-					date: '2025-08-15',
-					time: '19:00',
-					location: 'Blue Note Jazz Club',
-					price: 50,
-					availableSeats: 20,
-					totalSeats: 50,
-					category: 'Music',
-					organizerId: '1',
-					createdAt: '2025-08-01T00:00:00Z',
-				},
-				{
-					id: '2',
-					title: 'Rock Concert',
-					description: 'High energy rock show',
-					date: '2025-08-20',
-					time: '20:00',
-					location: 'Rock Arena',
-					price: 75,
-					availableSeats: 50,
-					totalSeats: 100,
-					category: 'Music',
-					organizerId: '1',
-					createdAt: '2025-08-02T00:00:00Z',
-				},
-			];
-
-			const mockTransactions: Transaction[] = [
-				{
-					id: '1',
-					eventId: '1',
-					userId: '1',
-					quantity: 2,
-					totalPrice: 100,
-					status: 'pending',
-					pointsUsed: 0,
-					createdAt: '2025-08-01T00:00:00Z',
-					event: {
-						id: '1',
-						title: 'Jazz Night',
-						description: 'A smooth jazz evening',
-						date: '2025-08-15',
-						time: '19:00',
-						location: 'Blue Note Jazz Club',
-						price: 50,
-						availableSeats: 20,
-						totalSeats: 50,
-						category: 'Music',
-						organizerId: '1',
-						createdAt: '2025-08-01T00:00:00Z',
-					},
-					user: {
-						id: '2',
-						name: 'John Doe',
-						email: 'john@example.com',
-						role: 'customer',
-					},
-				},
-			];
-
-			setDashboardData(mockDashboardData);
-			setEvents(mockEvents);
-			setTransactions(mockTransactions);
-			console.log('fetchDashboardData: Data set successfully');
-		} catch (error: unknown) {
-			console.error('fetchDashboardData: Error occurred:', error);
-			if (error && typeof error === 'object' && 'response' in error) {
-				const axiosError = error as {
-					response: { data?: { message?: string } };
-				};
-				setError(
-					axiosError.response.data?.message || 'Failed to load dashboard data'
-				);
-			} else {
-				setError('Network error. Please check your connection.');
-			}
-		} finally {
-			console.log('fetchDashboardData: Setting loading to false');
-			setIsLoading(false);
-			console.log('fetchDashboardData: Complete');
-		}
-	};
+	}, [router, fetchDashboardData]);
 
 	const handleLogout = () => {
 		localStorage.removeItem('token');
@@ -213,6 +188,38 @@ export default function DashboardPage() {
 
 	const handleGoHome = () => {
 		router.push('/');
+	};
+
+	const handleEditEvent = (eventId: number) => {
+		router.push(`/dashboard/edit-event/${eventId}`);
+	};
+
+	const handleViewEventDetails = (eventId: number) => {
+		router.push(`/events/${eventId}`);
+	};
+
+	const handleCancelEvent = async (eventId: number) => {
+		const event = events.find((e) => e.id === eventId);
+		if (!event) return;
+
+		try {
+			// Mock API call for now
+			console.log('Canceling event:', eventId);
+
+			// Remove event from local state
+			setEvents((prev) => prev.filter((e) => e.id !== eventId));
+
+			// Show success message
+			setSuccessMessage(
+				`Event "${event.title}" has been cancelled successfully`
+			);
+
+			// Clear success message after 5 seconds
+			setTimeout(() => setSuccessMessage(''), 5000);
+		} catch (error) {
+			console.error('Error canceling event:', error);
+			setError('Failed to cancel event. Please try again.');
+		}
 	};
 
 	if (isLoading) {
@@ -261,9 +268,10 @@ export default function DashboardPage() {
 							</Button>
 							<Button
 								variant="outline"
-								onClick={() => router.push('/events/create')}
+								onClick={() => router.push('/dashboard/create-event')}
+								className="bg-blue-600 text-white hover:bg-blue-700"
 							>
-								Create Event
+								+ Create Event
 							</Button>
 							<Button
 								variant="outline"
@@ -312,62 +320,103 @@ export default function DashboardPage() {
 
 			{/* Main Content */}
 			<main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+				{/* Success Message */}
+				{successMessage && (
+					<div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+						<div className="text-green-800">{successMessage}</div>
+					</div>
+				)}
+
 				{activeTab === 'overview' && dashboardData && (
-					<div className="bg-white p-6 rounded-lg shadow">
-						<h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-							<div className="bg-blue-50 p-4 rounded">
-								<div className="text-2xl font-bold text-blue-600">
-									{dashboardData.totalEvents}
+					<div className="space-y-6">
+						{/* Main Stats */}
+						<div className="bg-white p-6 rounded-lg shadow">
+							<h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
+							<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+								<div className="bg-blue-50 p-4 rounded">
+									<div className="text-2xl font-bold text-blue-600">
+										{dashboardData.totalEvents}
+									</div>
+									<div className="text-sm text-gray-600">Total Events</div>
 								</div>
-								<div className="text-sm text-gray-600">Total Events</div>
+								<div className="bg-green-50 p-4 rounded">
+									<div className="text-2xl font-bold text-green-600">
+										IDR {dashboardData.totalRevenue.toLocaleString()}
+									</div>
+									<div className="text-sm text-gray-600">Total Revenue</div>
+								</div>
+								<div className="bg-purple-50 p-4 rounded">
+									<div className="text-2xl font-bold text-purple-600">
+										{dashboardData.totalAttendees}
+									</div>
+									<div className="text-sm text-gray-600">Total Attendees</div>
+								</div>
+								<div className="bg-orange-50 p-4 rounded">
+									<div className="text-2xl font-bold text-orange-600">
+										{dashboardData.pendingTransactions}
+									</div>
+									<div className="text-sm text-gray-600">
+										Pending Transactions
+									</div>
+								</div>
 							</div>
-							<div className="bg-green-50 p-4 rounded">
-								<div className="text-2xl font-bold text-green-600">
-									${dashboardData.totalRevenue}
-								</div>
-								<div className="text-sm text-gray-600">Total Revenue</div>
-							</div>
-							<div className="bg-purple-50 p-4 rounded">
-								<div className="text-2xl font-bold text-purple-600">
-									{dashboardData.totalAttendees}
-								</div>
-								<div className="text-sm text-gray-600">Total Attendees</div>
-							</div>
-							<div className="bg-orange-50 p-4 rounded">
-								<div className="text-2xl font-bold text-orange-600">
-									{dashboardData.pendingTransactions}
-								</div>
-								<div className="text-sm text-gray-600">
-									Pending Transactions
-								</div>
+						</div>
+
+						{/* Quick Actions */}
+						<div className="bg-white p-6 rounded-lg shadow">
+							<h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<Button
+									onClick={() => router.push('/dashboard/create-event')}
+									className="h-16 text-left justify-start"
+								>
+									<div>
+										<div className="font-medium">Create New Event</div>
+										<div className="text-sm opacity-80">
+											Set up your next event
+										</div>
+									</div>
+								</Button>
+								<Button
+									variant="outline"
+									onClick={() => setActiveTab('events')}
+									className="h-16 text-left justify-start"
+								>
+									<div>
+										<div className="font-medium">Manage Events</div>
+										<div className="text-sm opacity-80">
+											Edit or cancel events
+										</div>
+									</div>
+								</Button>
+								<Button
+									variant="outline"
+									onClick={() => setActiveTab('transactions')}
+									className="h-16 text-left justify-start"
+								>
+									<div>
+										<div className="font-medium">Review Payments</div>
+										<div className="text-sm opacity-80">
+											Check pending transactions
+										</div>
+									</div>
+								</Button>
 							</div>
 						</div>
 					</div>
 				)}
 
 				{activeTab === 'events' && (
-					<div className="bg-white p-6 rounded-lg shadow">
-						<h2 className="text-2xl font-bold mb-4">My Events</h2>
-						{events.length > 0 ? (
-							<div className="space-y-4">
-								{events.map((event) => (
-									<div
-										key={event.id}
-										className="border p-4 rounded"
-									>
-										<h3 className="font-semibold">{event.title}</h3>
-										<p className="text-gray-600">{event.description}</p>
-										<p className="text-sm text-gray-500">
-											{event.date} at {event.time}
-										</p>
-									</div>
-								))}
-							</div>
-						) : (
-							<p>No events found.</p>
-						)}
-					</div>
+					<EventList
+						events={events}
+						onRefresh={fetchDashboardData}
+						onSelectEvent={(eventId) =>
+							console.log('View attendees for event:', eventId)
+						}
+						onEditEvent={handleEditEvent}
+						onViewDetails={handleViewEventDetails}
+						onCancelEvent={handleCancelEvent}
+					/>
 				)}
 
 				{activeTab === 'transactions' && (
