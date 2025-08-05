@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from '@/lib/axios';
+import ImageUpload from '@/components/ui/image-upload';
 
 interface UserProfile {
 	id: number;
@@ -647,20 +648,17 @@ export default function ProfilePage() {
 												/>
 											</div>
 											<div>
-												<label className="block text-sm font-medium text-gray-700">
-													Profile Picture URL
-												</label>
-												<input
-													type="url"
-													value={editForm.profile_picture}
-													onChange={(e) =>
-														setEditForm({
-															...editForm,
-															profile_picture: e.target.value,
-														})
-													}
-													className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-													placeholder="https://example.com/your-photo.jpg"
+												<ImageUpload
+													onImageUploaded={(imageUrl) => {
+														setEditForm((prev) => ({
+															...prev,
+															profile_picture: imageUrl,
+														}));
+													}}
+													currentImage={editForm.profile_picture}
+													label="Profile Picture"
+													category="profiles"
+													maxSize={2}
 												/>
 											</div>
 											<button

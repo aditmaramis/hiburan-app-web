@@ -2,43 +2,61 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
 
 interface Event {
-	id: string;
+	id: number;
 	title: string;
-	description: string;
+	description: string | null;
 	date: string;
 	time: string;
 	location: string;
 	price: number;
-	availableSeats: number;
-	totalSeats: number;
+	available_seats: number;
+	total_seats: number;
 	category: string;
-	image?: string;
-	organizerId: string;
-	createdAt: string;
+	image?: string | null;
+	organizer_id: number;
+	created_at: string;
+	updated_at: string;
 }
 
 interface EventListProps {
 	events: Event[];
 	onRefresh: () => Promise<void>;
-	onSelectEvent: (eventId: string) => void;
+	onSelectEvent: (eventId: number) => void;
+	onEditEvent?: (eventId: number) => void;
+	onCancelEvent?: (eventId: number) => void;
+	onViewDetails?: (eventId: number) => void;
 }
 
 export default function EventList({
 	events,
 	onRefresh,
 	onSelectEvent,
+	onEditEvent,
+	onCancelEvent,
+	onViewDetails,
 }: EventListProps) {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCategory, setFilterCategory] = useState('');
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [confirmDialog, setConfirmDialog] = useState<{
+		isOpen: boolean;
+		eventId: number;
+		eventTitle: string;
+	}>({
+		isOpen: false,
+		eventId: 0,
+		eventTitle: '',
+	});
 
 	// Filter events based on search and category
 	const filteredEvents = events.filter((event) => {
 		const matchesSearch =
 			event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			event.description.toLowerCase().includes(searchTerm.toLowerCase());
+			(event.description &&
+				event.description.toLowerCase().includes(searchTerm.toLowerCase()));
 		const matchesCategory =
 			!filterCategory || event.category === filterCategory;
 		return matchesSearch && matchesCategory;
@@ -70,7 +88,7 @@ export default function EventList({
 
 		if (eventDate < now)
 			return { status: 'Past', color: 'bg-gray-100 text-gray-800' };
-		if (event.availableSeats === 0)
+		if (event.available_seats === 0)
 			return { status: 'Sold Out', color: 'bg-red-100 text-red-800' };
 		if (eventDate.getTime() - now.getTime() < 7 * 24 * 60 * 60 * 1000) {
 			return { status: 'Soon', color: 'bg-yellow-100 text-yellow-800' };
@@ -78,6 +96,24 @@ export default function EventList({
 		return { status: 'Active', color: 'bg-green-100 text-green-800' };
 	};
 
+	const handleCancelClick = (event: Event) => {
+		setConfirmDialog({
+			isOpen: true,
+			eventId: event.id,
+			eventTitle: event.title,
+		});
+	};
+
+	const handleConfirmCancel = async () => {
+		if (onCancelEvent) {
+			onCancelEvent(confirmDialog.eventId);
+		}
+		setConfirmDialog({ isOpen: false, eventId: 0, eventTitle: '' });
+	};
+
+	const handleCloseDialog = () => {
+		setConfirmDialog({ isOpen: false, eventId: 0, eventTitle: '' });
+	};
 	return (
 		<div className="space-y-6">
 			{/* Header */}
@@ -94,8 +130,10 @@ export default function EventList({
 					>
 						{isRefreshing ? 'Refreshing...' : 'Refresh'}
 					</Button>
-					<Button onClick={() => window.open('/events/create', '_blank')}>
-						Create Event
+					<Button
+						onClick={() => (window.location.href = '/dashboard/create-event')}
+					>
+						+ Create Event
 					</Button>
 				</div>
 			</div>
@@ -142,7 +180,7 @@ export default function EventList({
 				{filteredEvents.map((event) => {
 					const eventStatus = getEventStatus(event);
 					const occupancyRate =
-						((event.totalSeats - event.availableSeats) / event.totalSeats) *
+						((event.total_seats - event.available_seats) / event.total_seats) *
 						100;
 
 					return (
@@ -200,8 +238,8 @@ export default function EventList({
 									<div className="flex items-center">
 										<span className="font-medium">Seats:</span>
 										<span className="ml-2">
-											{event.totalSeats - event.availableSeats}/
-											{event.totalSeats}({occupancyRate.toFixed(1)}% full)
+											{event.total_seats - event.available_seats}/
+											{event.total_seats}({occupancyRate.toFixed(1)}% full)
 										</span>
 									</div>
 								</div>
@@ -211,7 +249,7 @@ export default function EventList({
 									<div className="flex justify-between text-xs text-gray-600 mb-1">
 										<span>Sold</span>
 										<span>
-											{event.totalSeats - event.availableSeats} tickets
+											{event.total_seats - event.available_seats} tickets
 										</span>
 									</div>
 									<div className="w-full bg-gray-200 rounded-full h-2">
@@ -230,17 +268,32 @@ export default function EventList({
 										className="flex-1"
 										onClick={() => onSelectEvent(event.id)}
 									>
-										View Attendees
+										Attendees
 									</Button>
 									<Button
 										variant="outline"
 										size="sm"
-										onClick={() =>
-											window.open(`/events/${event.id}/edit`, '_blank')
-										}
+										onClick={() => onEditEvent?.(event.id)}
 									>
 										Edit
 									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => onViewDetails?.(event.id)}
+									>
+										Details
+									</Button>
+									{eventStatus.status !== 'Past' && (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => handleCancelClick(event)}
+											className="text-red-600 hover:text-red-700 hover:border-red-300"
+										>
+											Cancel
+										</Button>
+									)}
 								</div>
 							</div>
 						</div>
@@ -275,12 +328,26 @@ export default function EventList({
 							: 'Create your first event to get started'}
 					</p>
 					{!searchTerm && !filterCategory && (
-						<Button onClick={() => window.open('/events/create', '_blank')}>
+						<Button
+							onClick={() => (window.location.href = '/dashboard/create-event')}
+						>
 							Create Your First Event
 						</Button>
 					)}
 				</div>
 			)}
+
+			{/* Confirm Dialog */}
+			<ConfirmDialog
+				isOpen={confirmDialog.isOpen}
+				title="Cancel Event"
+				message={`Are you sure you want to cancel "${confirmDialog.eventTitle}"? This action cannot be undone and all attendees will be notified.`}
+				confirmText="Yes, Cancel Event"
+				cancelText="Keep Event"
+				onConfirm={handleConfirmCancel}
+				onCancel={handleCloseDialog}
+				variant="destructive"
+			/>
 		</div>
 	);
 }

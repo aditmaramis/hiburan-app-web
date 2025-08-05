@@ -1,24 +1,31 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import axios from 'axios';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 interface Event {
-	id: string;
+	id: number;
 	title: string;
-	description: string;
+	description: string | null;
 	date: string;
 	time: string;
 	location: string;
 	price: number;
-	availableSeats: number;
-	totalSeats: number;
+	available_seats: number;
+	total_seats: number;
 	category: string;
-	image?: string;
-	organizerId: string;
-	createdAt: string;
+	image?: string | null;
+	organizer_id: number;
+	created_at: string;
+	updated_at: string;
+	organizer?: {
+		id: number;
+		name: string | null;
+		email: string;
+	};
 }
 
 export default function EventDetailsPage() {
@@ -38,51 +45,32 @@ export default function EventDetailsPage() {
 
 	const fetchEvent = async (eventId: string) => {
 		try {
-			// Mock event data - in real app this would come from API
-			const mockEvents: Event[] = [
-				{
-					id: '1',
-					title: 'Summer Music Festival',
-					description:
-						"Join us for an amazing summer music festival featuring top artists from around the world. Experience incredible live performances, delicious food, and an unforgettable atmosphere. This event brings together music lovers from all genres and creates lasting memories. With multiple stages and diverse acts, there's something for everyone to enjoy.",
-					date: '2025-08-15',
-					time: '18:00',
-					location: 'Central Park, New York',
-					price: 75,
-					availableSeats: 150,
-					totalSeats: 500,
-					category: 'music',
-					image: '/jazz.jpg',
-					organizerId: '1',
-					createdAt: '2025-07-01',
-				},
-				{
-					id: '2',
-					title: 'Tech Conference 2025',
-					description:
-						'Discover the latest trends in technology and network with industry professionals. Learn from leading experts in AI, blockchain, cloud computing, and more. This comprehensive conference features keynote speakers, workshops, and networking opportunities.',
-					date: '2025-09-20',
-					time: '09:00',
-					location: 'Convention Center, San Francisco',
-					price: 120,
-					availableSeats: 80,
-					totalSeats: 200,
-					category: 'technology',
-					image: '/jazz.jpg',
-					organizerId: '2',
-					createdAt: '2025-07-15',
-				},
-			];
+			setLoading(true);
+			// Fetch event from API
+			const response = await axios.get(
+				`http://localhost:8000/api/events/${eventId}`
+			);
+			const fetchedEvent = response.data.event;
 
-			const foundEvent = mockEvents.find((e) => e.id === eventId);
-			if (foundEvent) {
-				setEvent(foundEvent);
+			if (fetchedEvent) {
+				setEvent(fetchedEvent);
 			} else {
 				setError('Event not found');
 			}
 		} catch (error) {
 			console.error('Error fetching event:', error);
-			setError('Failed to load event details');
+			if (error && typeof error === 'object' && 'response' in error) {
+				const axiosError = error as {
+					response: { status?: number; data?: { message?: string } };
+				};
+				if (axiosError.response?.status === 404) {
+					setError('Event not found');
+				} else {
+					setError('Failed to load event details');
+				}
+			} else {
+				setError('Network error. Please check your connection.');
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -107,7 +95,7 @@ export default function EventDetailsPage() {
 			if (event) {
 				setEvent({
 					...event,
-					availableSeats: event.availableSeats - ticketQuantity,
+					available_seats: event.available_seats - ticketQuantity,
 				});
 			}
 		} catch (error) {
@@ -130,11 +118,11 @@ export default function EventDetailsPage() {
 		const eventDate = new Date(event.date);
 		const now = new Date();
 		const occupancyRate =
-			((event.totalSeats - event.availableSeats) / event.totalSeats) * 100;
+			((event.total_seats - event.available_seats) / event.total_seats) * 100;
 
 		if (eventDate < now)
 			return { label: 'Past Event', color: 'bg-gray-500', available: false };
-		if (event.availableSeats === 0)
+		if (event.available_seats === 0)
 			return { label: 'Sold Out', color: 'bg-red-500', available: false };
 		if (occupancyRate >= 90)
 			return { label: 'Almost Full', color: 'bg-orange-500', available: true };
@@ -269,15 +257,21 @@ export default function EventDetailsPage() {
 							<div className="bg-white rounded-lg shadow-md p-8">
 								<h2 className="text-2xl font-bold mb-6">About This Event</h2>
 								<div className="prose max-w-none text-gray-700 leading-relaxed">
-									{event.description.split('. ').map((sentence, index) => (
-										<p
-											key={index}
-											className="mb-4"
-										>
-											{sentence}
-											{sentence.endsWith('.') ? '' : '.'}
+									{event.description &&
+										event.description.split('. ').map((sentence, index) => (
+											<p
+												key={index}
+												className="mb-4"
+											>
+												{sentence}
+												{sentence.endsWith('.') ? '' : '.'}
+											</p>
+										))}
+									{!event.description && (
+										<p className="text-gray-500 italic">
+											No description available.
 										</p>
-									))}
+									)}
 								</div>
 
 								{/* Event Details */}
@@ -310,7 +304,7 @@ export default function EventDetailsPage() {
 												Availability
 											</h4>
 											<p className="text-gray-600">
-												{event.availableSeats} of {event.totalSeats} seats
+												{event.available_seats} of {event.total_seats} seats
 												available
 											</p>
 										</div>
@@ -343,7 +337,7 @@ export default function EventDetailsPage() {
 												className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
 											>
 												{Array.from(
-													{ length: Math.min(10, event.availableSeats) },
+													{ length: Math.min(10, event.available_seats) },
 													(_, i) => (
 														<option
 															key={i + 1}

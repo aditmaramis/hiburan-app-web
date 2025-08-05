@@ -2,21 +2,27 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import axios from 'axios';
 
 interface Event {
-	id: string;
+	id: number;
 	title: string;
 	description: string;
 	date: string;
 	time: string;
 	location: string;
-	price: number;
-	availableSeats: number;
-	totalSeats: number;
+	price: string;
+	available_seats: number;
+	total_seats: number;
 	category: string;
 	image?: string;
-	organizerId: string;
-	createdAt: string;
+	organizer_id: number;
+	created_at: string;
+	organizer?: {
+		id: number;
+		name: string;
+		email: string;
+	};
 }
 
 export default function EventListHome() {
@@ -42,111 +48,17 @@ export default function EventListHome() {
 
 	const fetchEvents = async () => {
 		try {
-			// Mock data for now since we don't have the events API endpoint yet
-			const mockEvents: Event[] = [
-				{
-					id: '1',
-					title: 'Summer Music Festival',
-					description:
-						'Join us for an amazing summer music festival featuring top artists from around the world.',
-					date: '2025-08-15',
-					time: '18:00',
-					location: 'Central Park, New York',
-					price: 75,
-					availableSeats: 150,
-					totalSeats: 500,
-					category: 'music',
-					image: '/event1.jpg',
-					organizerId: '1',
-					createdAt: '2025-07-01',
-				},
-				{
-					id: '2',
-					title: 'Tech Conference 2025',
-					description:
-						'Discover the latest trends in technology and network with industry professionals.',
-					date: '2025-09-20',
-					time: '09:00',
-					location: 'Convention Center, San Francisco',
-					price: 120,
-					availableSeats: 80,
-					totalSeats: 200,
-					category: 'technology',
-					image: '/event2.jpg',
-					organizerId: '2',
-					createdAt: '2025-07-15',
-				},
-				{
-					id: '3',
-					title: 'Art Gallery Opening',
-					description:
-						'Experience contemporary art from emerging artists in an exclusive gallery opening.',
-					date: '2025-08-30',
-					time: '19:00',
-					location: 'Modern Art Gallery, Los Angeles',
-					price: 25,
-					availableSeats: 45,
-					totalSeats: 100,
-					category: 'art',
-					image: '/event3.jpg',
-					organizerId: '3',
-					createdAt: '2025-07-20',
-				},
-				{
-					id: '4',
-					title: 'Food & Wine Festival',
-					description:
-						'Taste exceptional cuisine and wines from award-winning chefs and vineyards.',
-					date: '2025-09-10',
-					time: '12:00',
-					location: 'Waterfront Plaza, Seattle',
-					price: 85,
-					availableSeats: 200,
-					totalSeats: 300,
-					category: 'food',
-					image: '/event4.jpg',
-					organizerId: '4',
-					createdAt: '2025-07-25',
-				},
-				{
-					id: '5',
-					title: 'Business Leadership Summit',
-					description:
-						'Learn from successful entrepreneurs and business leaders in this intensive summit.',
-					date: '2025-09-05',
-					time: '08:00',
-					location: 'Business Center, Chicago',
-					price: 200,
-					availableSeats: 30,
-					totalSeats: 150,
-					category: 'business',
-					image: '/event5.jpg',
-					organizerId: '5',
-					createdAt: '2025-07-30',
-				},
-				{
-					id: '6',
-					title: 'Basketball Championship',
-					description:
-						'Watch the exciting championship game between the top teams of the season.',
-					date: '2025-08-25',
-					time: '20:00',
-					location: 'Sports Arena, Miami',
-					price: 50,
-					availableSeats: 500,
-					totalSeats: 1000,
-					category: 'sports',
-					image: '/event6.jpg',
-					organizerId: '6',
-					createdAt: '2025-08-01',
-				},
-			];
+			setLoading(true);
+			const response = await axios.get('http://localhost:8000/api/events');
 
-			setEvents(mockEvents);
-			setLoading(false);
+			// The response should contain an array of events
+			const fetchedEvents =
+				response.data.events || response.data.data || response.data;
+			setEvents(fetchedEvents);
 		} catch (error) {
 			console.error('Error fetching events:', error);
 			setError('Failed to load events. Please try again later.');
+		} finally {
 			setLoading(false);
 		}
 	};
@@ -169,10 +81,10 @@ export default function EventListHome() {
 		const eventDate = new Date(event.date);
 		const now = new Date();
 		const occupancyRate =
-			((event.totalSeats - event.availableSeats) / event.totalSeats) * 100;
+			((event.total_seats - event.available_seats) / event.total_seats) * 100;
 
 		if (eventDate < now) return { label: 'Past', color: 'bg-gray-500' };
-		if (event.availableSeats === 0)
+		if (event.available_seats === 0)
 			return { label: 'Sold Out', color: 'bg-red-500' };
 		if (occupancyRate >= 90)
 			return { label: 'Almost Full', color: 'bg-orange-500' };
@@ -273,7 +185,7 @@ export default function EventListHome() {
 											{event.category}
 										</span>
 										<span className="text-2xl font-bold text-primary">
-											${event.price}
+											${parseFloat(event.price).toLocaleString()}
 										</span>
 									</div>
 
@@ -338,7 +250,7 @@ export default function EventListHome() {
 													d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
 												/>
 											</svg>
-											{event.availableSeats} / {event.totalSeats} seats
+											{event.available_seats} / {event.total_seats} seats
 											available
 										</div>
 									</div>
@@ -347,13 +259,13 @@ export default function EventListHome() {
 									<Link href={`/events/${event.id}`}>
 										<button
 											className={`w-full py-2 px-4 rounded font-medium transition ${
-												event.availableSeats > 0
+												event.available_seats > 0
 													? 'bg-primary text-white hover:bg-primary/90'
 													: 'bg-gray-300 text-gray-500 cursor-not-allowed'
 											}`}
-											disabled={event.availableSeats === 0}
+											disabled={event.available_seats === 0}
 										>
-											{event.availableSeats > 0 ? 'Book Now' : 'Sold Out'}
+											{event.available_seats > 0 ? 'Book Now' : 'Sold Out'}
 										</button>
 									</Link>
 								</div>
