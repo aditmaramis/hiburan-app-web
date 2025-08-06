@@ -13,13 +13,13 @@ export default function Home() {
 
 	const categories = [
 		{ value: 'all', label: 'All Events' },
-		{ value: 'music', label: 'Music' },
-		{ value: 'sports', label: 'Sports' },
-		{ value: 'technology', label: 'Technology' },
-		{ value: 'food', label: 'Food & Drink' },
-		{ value: 'art', label: 'Art & Culture' },
-		{ value: 'business', label: 'Business' },
-		{ value: 'education', label: 'Education' },
+		{ value: 'Music', label: 'Music' },
+		{ value: 'Sports', label: 'Sports' },
+		{ value: 'Technology', label: 'Technology' },
+		{ value: 'Food & Drink', label: 'Food & Drink' },
+		{ value: 'Art & Culture', label: 'Art & Culture' },
+		{ value: 'Business', label: 'Business' },
+		{ value: 'Education', label: 'Education' },
 	];
 
 	const handleSearch = () => {

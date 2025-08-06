@@ -120,6 +120,15 @@ export default function EventListHome({
 		return categoryMatch && searchMatch && locationMatch && dateMatch;
 	});
 
+	// Debug logging
+	console.log('Selected Category:', selectedCategory);
+	console.log('Total Events:', events.length);
+	console.log('Filtered Events:', filteredEvents.length);
+	console.log(
+		'Events:',
+		events.map((e) => ({ title: e.title, category: e.category }))
+	);
+
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('en-US', {
 			weekday: 'short',

@@ -31,7 +31,7 @@ export default function Navbar() {
 	};
 
 	return (
-		<nav className="w-full glass border-b border-white/20 shadow-2xl shadow-black/10 px-4 md:px-8 py-3 flex items-center justify-between gap-4 sticky top-0 z-50 backdrop-blur-md">
+		<nav className="w-full glass shadow-2xl shadow-black/10 px-4 md:px-8 py-3 flex items-center justify-between gap-4 sticky top-0 z-50 backdrop-blur-md">
 			{/* Logo */}
 			<Link
 				href="/"
@@ -76,12 +76,12 @@ export default function Navbar() {
 				) : (
 					<>
 						<Link href="/login">
-							<button className="px-4 py-2 rounded border border-white/30 text-white hover:bg-white/10 transition-all duration-300 text-sm backdrop-blur-sm">
+							<button className="px-4 py-2 rounded text-white hover:bg-white/10 transition-all duration-300 text-sm backdrop-blur-sm">
 								Login
 							</button>
 						</Link>
 						<Link href="/register">
-							<button className="px-4 py-2 rounded bg-white/20 hover:bg-white/30 text-white transition-all duration-300 text-sm font-medium backdrop-blur-sm border border-white/20 hover:border-white/30">
+							<button className="px-4 py-2 rounded bg-white/20 hover:bg-white/30 text-white transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-white/30">
 								Register
 							</button>
 						</Link>
