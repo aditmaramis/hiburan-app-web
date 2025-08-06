@@ -1,9 +1,40 @@
+'use client';
+import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import EventListHome from '../components/EventListHome';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 
 export default function Home() {
+	const [searchQuery, setSearchQuery] = useState('');
+	const [locationQuery, setLocationQuery] = useState('');
+	const [selectedCategory, setSelectedCategory] = useState('all');
+	const [dateFilter, setDateFilter] = useState('');
+
+	const categories = [
+		{ value: 'all', label: 'All Events' },
+		{ value: 'music', label: 'Music' },
+		{ value: 'sports', label: 'Sports' },
+		{ value: 'technology', label: 'Technology' },
+		{ value: 'food', label: 'Food & Drink' },
+		{ value: 'art', label: 'Art & Culture' },
+		{ value: 'business', label: 'Business' },
+		{ value: 'education', label: 'Education' },
+	];
+
+	const handleSearch = () => {
+		// The filtering will be handled by EventListHome component
+		// This function can be used for additional search actions if needed
+	};
+
+	const handleCategoryClick = (category: string) => {
+		setSelectedCategory(category);
+		setDateFilter(''); // Clear date filter when category changes
+	};
+
+	const handleDateFilterClick = (filter: string) => {
+		setDateFilter(filter === dateFilter ? '' : filter); // Toggle filter
+	};
 	return (
 		<>
 			{/* Full screen background image */}
@@ -50,15 +81,86 @@ export default function Home() {
 								Find and book tickets for concerts, workshops, conferences, and
 								more
 							</p>
-							<div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
-								<input
-									type="text"
-									placeholder="Search events..."
-									className="flex-1 px-6 py-4 rounded-lg glass text-white placeholder:text-white/70 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30 text-lg"
-								/>
-								<button className="bg-white/20 hover:bg-white/30 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm border border-white/20 hover:border-white/30">
-									Search Events
-								</button>
+
+							{/* Enhanced Search Section */}
+							<div className="max-w-4xl mx-auto space-y-6">
+								{/* Main Search Bar */}
+								<div className="flex flex-col lg:flex-row gap-4 justify-center">
+									<input
+										type="text"
+										placeholder="Search events..."
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										className="flex-1 px-6 py-4 rounded-lg glass text-white placeholder:text-white/70 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30 text-lg"
+									/>
+									<input
+										type="text"
+										placeholder="Location (city, venue)..."
+										value={locationQuery}
+										onChange={(e) => setLocationQuery(e.target.value)}
+										className="lg:w-80 px-6 py-4 rounded-lg glass text-white placeholder:text-white/70 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30 text-lg"
+									/>
+									<button
+										onClick={handleSearch}
+										className="bg-white/20 hover:bg-white/30 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm border border-white/20 hover:border-white/30"
+									>
+										Search Events
+									</button>
+								</div>
+
+								{/* Category Filter Pills */}
+								<div className="flex flex-wrap gap-3 justify-center">
+									{categories.map((category) => (
+										<button
+											key={category.value}
+											onClick={() => handleCategoryClick(category.value)}
+											className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm border ${
+												selectedCategory === category.value
+													? 'bg-white/20 text-white border-white/30 shadow-lg'
+													: 'bg-white/10 text-white/80 border-white/20 hover:bg-white/20 hover:text-white'
+											}`}
+										>
+											{category.label}
+										</button>
+									))}
+								</div>
+
+								{/* Quick Filter Options */}
+								<div className="flex flex-wrap gap-3 justify-center text-sm">
+									<button
+										onClick={() => handleDateFilterClick('weekend')}
+										className={`px-3 py-1 rounded-full backdrop-blur-sm border transition-all duration-300 ${
+											dateFilter === 'weekend'
+												? 'border-white/30 text-white bg-white/20'
+												: 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
+										}`}
+									>
+										This Weekend
+									</button>
+									<button
+										onClick={() => handleDateFilterClick('nextweek')}
+										className={`px-3 py-1 rounded-full backdrop-blur-sm border transition-all duration-300 ${
+											dateFilter === 'nextweek'
+												? 'border-white/30 text-white bg-white/20'
+												: 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
+										}`}
+									>
+										Next Week
+									</button>
+									<button
+										onClick={() => handleDateFilterClick('free')}
+										className={`px-3 py-1 rounded-full backdrop-blur-sm border transition-all duration-300 ${
+											dateFilter === 'free'
+												? 'border-white/30 text-white bg-white/20'
+												: 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
+										}`}
+									>
+										Free Events
+									</button>
+									<button className="px-3 py-1 rounded-full backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300">
+										Near Me
+									</button>
+								</div>
 							</div>
 						</div>
 					</section>
@@ -76,7 +178,12 @@ export default function Home() {
 								</p>
 							</div>
 
-							<EventListHome />
+							<EventListHome
+								searchQuery={searchQuery}
+								locationQuery={locationQuery}
+								categoryFilter={selectedCategory}
+								dateFilter={dateFilter}
+							/>
 						</div>
 					</section>
 

@@ -6,8 +6,6 @@ import { useState, useEffect } from 'react';
 
 export default function Navbar() {
 	const router = useRouter();
-	const [search, setSearch] = useState('');
-	const [location, setLocation] = useState('');
 	const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
 	useEffect(() => {
@@ -32,16 +30,6 @@ export default function Navbar() {
 		router.push('/');
 	};
 
-	const handleSearch = (e: React.FormEvent) => {
-		e.preventDefault();
-		// You can route to a search page or handle search logic here
-		router.push(
-			`/events?search=${encodeURIComponent(
-				search
-			)}&location=${encodeURIComponent(location)}`
-		);
-	};
-
 	return (
 		<nav className="w-full glass border-b border-white/20 shadow-2xl shadow-black/10 px-4 md:px-8 py-3 flex items-center justify-between gap-4 sticky top-0 z-50 backdrop-blur-md">
 			{/* Logo */}
@@ -58,32 +46,7 @@ export default function Navbar() {
 				/>
 				HiburanApp
 			</Link>
-			{/* Search */}
-			<form
-				onSubmit={handleSearch}
-				className="flex-1 flex items-center gap-2 max-w-xl mx-4"
-			>
-				<input
-					type="text"
-					placeholder="Search events..."
-					className="glass border-none rounded-l px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-white/30 text-white placeholder:text-white/70 text-sm"
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-				/>
-				<input
-					type="text"
-					placeholder="Location"
-					className="glass border-none rounded-r px-3 py-2 w-32 focus:outline-none focus:ring-2 focus:ring-white/30 text-white placeholder:text-white/70 text-sm"
-					value={location}
-					onChange={(e) => setLocation(e.target.value)}
-				/>
-				<button
-					type="submit"
-					className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded ml-2 transition-all duration-300 hover:scale-105 backdrop-blur-sm border border-white/20 hover:border-white/30 text-sm font-medium"
-				>
-					Search
-				</button>
-			</form>
+
 			{/* Auth Buttons */}
 			<div className="flex items-center gap-2">
 				{user ? (

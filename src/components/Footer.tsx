@@ -59,7 +59,9 @@ export default function Footer() {
 
 					{/* Quick Links */}
 					<div>
-						<h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
+						<h3 className="text-lg font-semibold mb-4 text-white">
+							Quick Links
+						</h3>
 						<ul className="space-y-2">
 							<li>
 								<Link
@@ -98,7 +100,9 @@ export default function Footer() {
 
 					{/* For Organizers */}
 					<div>
-						<h3 className="text-lg font-semibold mb-4 text-white">For Organizers</h3>
+						<h3 className="text-lg font-semibold mb-4 text-white">
+							For Organizers
+						</h3>
 						<ul className="space-y-2">
 							<li>
 								<Link

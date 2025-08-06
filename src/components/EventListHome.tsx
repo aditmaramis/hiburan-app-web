@@ -25,26 +25,31 @@ interface Event {
 	};
 }
 
-export default function EventListHome() {
+interface EventListHomeProps {
+	searchQuery?: string;
+	locationQuery?: string;
+	categoryFilter?: string;
+	dateFilter?: string;
+}
+
+export default function EventListHome({
+	searchQuery = '',
+	locationQuery = '',
+	categoryFilter = 'all',
+	dateFilter = '',
+}: EventListHomeProps) {
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
-	const [selectedCategory, setSelectedCategory] = useState('all');
-
-	const categories = [
-		{ value: 'all', label: 'All Events' },
-		{ value: 'music', label: 'Music' },
-		{ value: 'sports', label: 'Sports' },
-		{ value: 'technology', label: 'Technology' },
-		{ value: 'food', label: 'Food & Drink' },
-		{ value: 'art', label: 'Art & Culture' },
-		{ value: 'business', label: 'Business' },
-		{ value: 'education', label: 'Education' },
-	];
+	const [selectedCategory, setSelectedCategory] = useState(categoryFilter);
 
 	useEffect(() => {
 		fetchEvents();
-	}, []);
+	}, [searchQuery, locationQuery, categoryFilter, dateFilter]);
+
+	useEffect(() => {
+		setSelectedCategory(categoryFilter);
+	}, [categoryFilter]);
 
 	const fetchEvents = async () => {
 		try {
@@ -63,10 +68,57 @@ export default function EventListHome() {
 		}
 	};
 
-	const filteredEvents =
-		selectedCategory === 'all'
-			? events
-			: events.filter((event) => event.category === selectedCategory);
+	const filteredEvents = events.filter((event) => {
+		// Category filter
+		const categoryMatch =
+			selectedCategory === 'all' || event.category === selectedCategory;
+
+		// Search query filter (title and description)
+		const searchMatch =
+			!searchQuery ||
+			event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			event.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+		// Location filter
+		const locationMatch =
+			!locationQuery ||
+			event.location.toLowerCase().includes(locationQuery.toLowerCase());
+
+		// Date filter for quick filters
+		let dateMatch = true;
+		if (dateFilter) {
+			const eventDate = new Date(event.date);
+			const now = new Date();
+			const startOfWeek = new Date(now);
+			startOfWeek.setDate(now.getDate() - now.getDay());
+			const endOfWeek = new Date(startOfWeek);
+			endOfWeek.setDate(startOfWeek.getDate() + 6);
+			const nextWeekStart = new Date(endOfWeek);
+			nextWeekStart.setDate(endOfWeek.getDate() + 1);
+			const nextWeekEnd = new Date(nextWeekStart);
+			nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+
+			switch (dateFilter) {
+				case 'weekend':
+					const friday = new Date(now);
+					friday.setDate(now.getDate() + (5 - now.getDay()));
+					const sunday = new Date(friday);
+					sunday.setDate(friday.getDate() + 2);
+					dateMatch = eventDate >= friday && eventDate <= sunday;
+					break;
+				case 'nextweek':
+					dateMatch = eventDate >= nextWeekStart && eventDate <= nextWeekEnd;
+					break;
+				case 'free':
+					dateMatch = parseFloat(event.price) === 0;
+					break;
+				default:
+					dateMatch = true;
+			}
+		}
+
+		return categoryMatch && searchMatch && locationMatch && dateMatch;
+	});
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('en-US', {
@@ -123,23 +175,6 @@ export default function EventListHome() {
 
 	return (
 		<div className="space-y-8">
-			{/* Category Filter */}
-			<div className="flex flex-wrap gap-2 justify-center">
-				{categories.map((category) => (
-					<button
-						key={category.value}
-						onClick={() => setSelectedCategory(category.value)}
-						className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm border ${
-							selectedCategory === category.value
-								? 'bg-white/20 text-white border-white/30 shadow-lg'
-								: 'bg-white/10 text-white/80 border-white/20 hover:bg-white/20 hover:text-white'
-						}`}
-					>
-						{category.label}
-					</button>
-				))}
-			</div>
-
 			{/* Events Grid */}
 			{filteredEvents.length > 0 ? (
 				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -302,11 +337,9 @@ export default function EventListHome() {
 						No events found
 					</h3>
 					<p className="text-white/70">
-						{selectedCategory === 'all'
+						{selectedCategory === 'all' && !searchQuery && !locationQuery
 							? 'There are no events available at the moment.'
-							: `No events found in the ${categories
-									.find((c) => c.value === selectedCategory)
-									?.label.toLowerCase()} category.`}
+							: 'No events found matching your search criteria. Try adjusting your filters.'}
 					</p>
 				</div>
 			)}
