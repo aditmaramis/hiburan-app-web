@@ -91,6 +91,14 @@ export default function EventListHome() {
 		return { label: 'Available', color: 'bg-green-500' };
 	};
 
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('id-ID', {
+			style: 'currency',
+			currency: 'IDR',
+			minimumFractionDigits: 0,
+		}).format(amount);
+	};
+
 	if (loading) {
 		return (
 			<div className="flex justify-center items-center py-12">
@@ -185,7 +193,7 @@ export default function EventListHome() {
 											{event.category}
 										</span>
 										<span className="text-2xl font-bold text-primary">
-											${parseFloat(event.price).toLocaleString()}
+											{formatCurrency(parseFloat(event.price))}
 										</span>
 									</div>
 

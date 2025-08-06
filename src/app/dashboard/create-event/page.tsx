@@ -7,6 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import ImageUpload from '@/components/ui/image-upload';
+import {
+	type Currency,
+	getSupportedCurrencies,
+	getCurrencyName,
+	formatCurrency,
+} from '@/utils/currency';
 
 interface User {
 	id: string;
@@ -22,6 +28,7 @@ interface EventFormData {
 	time: string;
 	location: string;
 	price: number;
+	currency: Currency;
 	totalSeats: number;
 	category: string;
 	image?: string;
@@ -48,6 +55,7 @@ export default function CreateEventPage() {
 		time: '',
 		location: '',
 		price: 0,
+		currency: 'IDR',
 		totalSeats: 0,
 		category: '',
 		image: '',
@@ -189,7 +197,8 @@ export default function CreateEventPage() {
 					time: formData.time,
 					location: formData.location,
 					price: formData.price,
-					totalSeats: formData.totalSeats,
+					currency: formData.currency,
+					total_seats: formData.totalSeats,
 					category: formData.category,
 					image: formData.image || null,
 				},
@@ -212,6 +221,7 @@ export default function CreateEventPage() {
 				time: '',
 				location: '',
 				price: 0,
+				currency: 'IDR',
 				totalSeats: 0,
 				category: '',
 				image: '',
@@ -447,20 +457,48 @@ export default function CreateEventPage() {
 						{/* Pricing and Capacity */}
 						<div>
 							<h2 className="text-lg font-semibold mb-4">Pricing & Capacity</h2>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 								<div>
-									<Label htmlFor="price">Ticket Price (IDR) *</Label>
+									<Label htmlFor="currency">Currency *</Label>
+									<select
+										id="currency"
+										name="currency"
+										value={formData.currency}
+										onChange={handleInputChange}
+										className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+									>
+										{getSupportedCurrencies().map((currency) => (
+											<option
+												key={currency}
+												value={currency}
+											>
+												{currency} - {getCurrencyName(currency)}
+											</option>
+										))}
+									</select>
+								</div>
+
+								<div>
+									<Label htmlFor="price">Ticket Price *</Label>
 									<Input
 										id="price"
 										name="price"
 										type="number"
 										min="0"
-										step="1000"
-										placeholder="0"
+										step={formData.currency === 'IDR' ? '1000' : '0.01'}
+										placeholder={
+											formData.currency === 'IDR' ? '50000' : '25.00'
+										}
 										value={formData.price}
 										onChange={handleInputChange}
 										className={errors.price ? 'border-red-500' : ''}
 									/>
+									{formData.price > 0 && (
+										<p className="text-sm text-gray-600 mt-1">
+											Preview:{' '}
+											{formatCurrency(formData.price, formData.currency)}
+										</p>
+									)}
 									{errors.price && (
 										<p className="text-red-500 text-sm mt-1">{errors.price}</p>
 									)}

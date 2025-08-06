@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ConfirmDialog from '@/components/ui/confirm-dialog';
+import { formatCurrency, type Currency } from '@/utils/currency';
 
 interface Event {
 	id: number;
@@ -12,6 +13,7 @@ interface Event {
 	time: string;
 	location: string;
 	price: number;
+	currency: Currency;
 	available_seats: number;
 	total_seats: number;
 	category: string;
@@ -41,6 +43,7 @@ export default function EventList({
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCategory, setFilterCategory] = useState('');
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 	const [confirmDialog, setConfirmDialog] = useState<{
 		isOpen: boolean;
 		eventId: number;
@@ -96,6 +99,52 @@ export default function EventList({
 		return { status: 'Active', color: 'bg-green-100 text-green-800' };
 	};
 
+	const isValidUrl = (url: string | null | undefined): boolean => {
+		if (!url || typeof url !== 'string' || url.trim() === '') {
+			return false;
+		}
+
+		// Handle relative URLs or URLs that might be stored without protocol
+		const urlToCheck = url.trim();
+
+		// If it starts with http:// or https://, validate as full URL
+		if (urlToCheck.startsWith('http://') || urlToCheck.startsWith('https://')) {
+			try {
+				new URL(urlToCheck);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		// If it starts with //, assume it's a protocol-relative URL
+		if (urlToCheck.startsWith('//')) {
+			try {
+				new URL(`https:${urlToCheck}`);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		// If it's just a path, assume it's relative and valid
+		if (urlToCheck.startsWith('/')) {
+			return true;
+		}
+
+		// For Cloudinary URLs or other domains, try to construct with https
+		if (urlToCheck.includes('.cloudinary.com') || urlToCheck.includes('.')) {
+			try {
+				new URL(`https://${urlToCheck}`);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		return false;
+	};
+
 	const handleCancelClick = (event: Event) => {
 		setConfirmDialog({
 			isOpen: true,
@@ -113,6 +162,10 @@ export default function EventList({
 
 	const handleCloseDialog = () => {
 		setConfirmDialog({ isOpen: false, eventId: 0, eventTitle: '' });
+	};
+
+	const handleImageError = (eventId: number) => {
+		setImageErrors((prev) => new Set(prev).add(eventId));
 	};
 	return (
 		<div className="space-y-6">
@@ -190,12 +243,15 @@ export default function EventList({
 						>
 							{/* Event Image */}
 							<div className="h-48 bg-gray-200 relative">
-								{event.image ? (
+								{event.image &&
+								isValidUrl(event.image) &&
+								!imageErrors.has(event.id) ? (
 									<Image
 										src={event.image}
 										alt={event.title}
 										fill
 										className="object-cover"
+										onError={() => handleImageError(event.id)}
 									/>
 								) : (
 									<div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -233,7 +289,9 @@ export default function EventList({
 									</div>
 									<div className="flex items-center">
 										<span className="font-medium">Price:</span>
-										<span className="ml-2">${event.price}</span>
+										<span className="ml-2">
+											{formatCurrency(event.price, event.currency)}
+										</span>
 									</div>
 									<div className="flex items-center">
 										<span className="font-medium">Seats:</span>

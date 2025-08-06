@@ -15,7 +15,6 @@ export default function RegisterPage() {
 		phone: '',
 		password: '',
 		referral: '',
-		role: '',
 	});
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
@@ -47,7 +46,6 @@ export default function RegisterPage() {
 				phone: '',
 				password: '',
 				referral: '',
-				role: '',
 			});
 
 			// Redirect after a short delay
@@ -169,21 +167,6 @@ export default function RegisterPage() {
 									onChange={handleChange}
 									disabled={isLoading}
 								/>
-							</div>
-							<div className="grid gap-2">
-								<Label htmlFor="role">Role</Label>
-								<select
-									id="role"
-									className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-									required
-									value={form.role}
-									onChange={handleChange}
-									disabled={isLoading}
-								>
-									<option value="">Select role</option>
-									<option value="customer">Customer</option>
-									<option value="organizer">Organizer</option>
-								</select>
 							</div>
 							{error && <div className="text-red-500 text-sm">{error}</div>}
 							{success && (
