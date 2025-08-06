@@ -118,15 +118,32 @@ export default function ProfilePage() {
 	const fetchPrizes = async () => {
 		try {
 			const token = localStorage.getItem('token');
+			console.log(
+				'Fetching prizes with token:',
+				token ? 'Token exists' : 'No token'
+			);
+
 			const response = await axios.get('/referral/prizes', {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
+			console.log('Prizes API response:', response.data);
+
 			if (response.data.success) {
 				setPrizes(response.data.data);
+				console.log('Prizes set:', response.data.data);
+			} else {
+				console.log('Prizes API returned success: false');
 			}
 		} catch (error) {
 			console.error('Error fetching prizes:', error);
+			if (error && typeof error === 'object' && 'response' in error) {
+				const axiosError = error as {
+					response?: { status: number; data?: unknown };
+				};
+				console.error('Error response:', axiosError.response?.data);
+				console.error('Error status:', axiosError.response?.status);
+			}
 		}
 	};
 

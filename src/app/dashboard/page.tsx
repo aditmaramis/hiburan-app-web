@@ -4,6 +4,10 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import EventList from '@/components/dashboard/EventList';
+import TransactionList from '@/components/dashboard/TransactionList';
+import AttendeeList from '@/components/dashboard/AttendeeList';
+import StatisticsDashboard from '@/components/dashboard/StatisticsDashboard';
+import { type Currency } from '@/utils/currency';
 
 interface User {
 	id: string;
@@ -20,6 +24,7 @@ interface Event {
 	time: string;
 	location: string;
 	price: number;
+	currency: Currency;
 	available_seats: number;
 	total_seats: number;
 	category: string;
@@ -27,21 +32,6 @@ interface Event {
 	organizer_id: number;
 	created_at: string;
 	updated_at: string;
-}
-
-interface Transaction {
-	id: string;
-	eventId: string;
-	userId: string;
-	quantity: number;
-	totalPrice: number;
-	status: 'pending' | 'accepted' | 'rejected';
-	paymentProof?: string;
-	pointsUsed: number;
-	voucherUsed?: string;
-	createdAt: string;
-	event: Event;
-	user: User;
 }
 
 interface DashboardData {
@@ -64,9 +54,8 @@ export default function DashboardPage() {
 		null
 	);
 	const [events, setEvents] = useState<Event[]>([]);
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [activeTab, setActiveTab] = useState<
-		'overview' | 'events' | 'transactions' | 'attendees'
+		'overview' | 'events' | 'transactions' | 'attendees' | 'statistics'
 	>('overview');
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState('');
@@ -75,9 +64,7 @@ export default function DashboardPage() {
 
 	const fetchDashboardData = useCallback(async () => {
 		try {
-			console.log('fetchDashboardData: Starting...');
 			setIsLoading(true);
-			console.log('fetchDashboardData: Set loading to true');
 
 			// Get token from localStorage
 			const token = localStorage.getItem('token');
@@ -128,13 +115,8 @@ export default function DashboardPage() {
 				})),
 			};
 
-			// Mock transactions for now
-			const mockTransactions: Transaction[] = [];
-
 			setDashboardData(mockDashboardData);
 			setEvents(fetchedEvents);
-			setTransactions(mockTransactions);
-			console.log('fetchDashboardData: Data set successfully');
 		} catch (error: unknown) {
 			console.error('fetchDashboardData: Error occurred:', error);
 			if (error && typeof error === 'object' && 'response' in error) {
@@ -154,9 +136,7 @@ export default function DashboardPage() {
 				setError('Network error. Please check your connection.');
 			}
 		} finally {
-			console.log('fetchDashboardData: Setting loading to false');
 			setIsLoading(false);
-			console.log('fetchDashboardData: Complete');
 		}
 	}, [router]);
 
@@ -198,29 +178,30 @@ export default function DashboardPage() {
 		router.push(`/events/${eventId}`);
 	};
 
-	const handleCancelEvent = async (eventId: number) => {
-		const event = events.find((e) => e.id === eventId);
-		if (!event) return;
-
+	const handleDeleteEvent = async (eventId: number) => {
 		try {
-			// Mock API call for now
-			console.log('Canceling event:', eventId);
+			const token = localStorage.getItem('token');
+			if (!token) {
+				setError('Authentication required');
+				return;
+			}
 
-			// Remove event from local state
-			setEvents((prev) => prev.filter((e) => e.id !== eventId));
+			await axios.delete(`http://localhost:8000/api/events/${eventId}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 
-			// Show success message
-			setSuccessMessage(
-				`Event "${event.title}" has been cancelled successfully`
-			);
-
-			// Clear success message after 5 seconds
-			setTimeout(() => setSuccessMessage(''), 5000);
+			// Refresh dashboard data
+			await fetchDashboardData();
+			setSuccessMessage('Event deleted successfully');
 		} catch (error) {
-			console.error('Error canceling event:', error);
-			setError('Failed to cancel event. Please try again.');
+			console.error('Error deleting event:', error);
+			setError('Failed to delete event');
 		}
 	};
+
+	const handleCancelEvent = handleDeleteEvent; // Alias for compatibility
 
 	if (isLoading) {
 		return (
@@ -293,6 +274,7 @@ export default function DashboardPage() {
 							{ key: 'events', label: 'My Events' },
 							{ key: 'transactions', label: 'Transactions' },
 							{ key: 'attendees', label: 'Attendees' },
+							{ key: 'statistics', label: 'Statistics' },
 						].map((tab) => (
 							<button
 								key={tab.key}
@@ -303,6 +285,7 @@ export default function DashboardPage() {
 											| 'events'
 											| 'transactions'
 											| 'attendees'
+											| 'statistics'
 									)
 								}
 								className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -410,9 +393,10 @@ export default function DashboardPage() {
 					<EventList
 						events={events}
 						onRefresh={fetchDashboardData}
-						onSelectEvent={(eventId) =>
-							console.log('View attendees for event:', eventId)
-						}
+						onSelectEvent={() => {
+							// View attendees functionality would go here
+							setActiveTab('attendees');
+						}}
 						onEditEvent={handleEditEvent}
 						onViewDetails={handleViewEventDetails}
 						onCancelEvent={handleCancelEvent}
@@ -421,33 +405,23 @@ export default function DashboardPage() {
 
 				{activeTab === 'transactions' && (
 					<div className="bg-white p-6 rounded-lg shadow">
-						<h2 className="text-2xl font-bold mb-4">Transactions</h2>
-						{transactions.length > 0 ? (
-							<div className="space-y-4">
-								{transactions.map((transaction) => (
-									<div
-										key={transaction.id}
-										className="border p-4 rounded"
-									>
-										<h3 className="font-semibold">{transaction.event.title}</h3>
-										<p>
-											Status:{' '}
-											<span className="capitalize">{transaction.status}</span>
-										</p>
-										<p>Total: ${transaction.totalPrice}</p>
-									</div>
-								))}
-							</div>
-						) : (
-							<p>No transactions found.</p>
-						)}
+						<h2 className="text-2xl font-bold mb-4">Transaction Management</h2>
+						<p className="text-gray-600 mb-6">
+							Review and manage payment transactions from customers
+						</p>
+						<TransactionList onRefresh={fetchDashboardData} />
 					</div>
 				)}
 
 				{activeTab === 'attendees' && (
 					<div className="bg-white p-6 rounded-lg shadow">
-						<h2 className="text-2xl font-bold mb-4">Attendees</h2>
-						<p>Attendee management coming soon...</p>
+						<AttendeeList onRefresh={fetchDashboardData} />
+					</div>
+				)}
+
+				{activeTab === 'statistics' && (
+					<div>
+						<StatisticsDashboard />
 					</div>
 				)}
 			</main>

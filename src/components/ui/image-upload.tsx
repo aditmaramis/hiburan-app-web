@@ -95,7 +95,7 @@ export default function ImageUpload({
 			);
 
 			if (response.data.status === 'success') {
-				const imageUrl = `http://localhost:8000${response.data.data.imageUrl}`;
+				const imageUrl = response.data.data.imageUrl; // Cloudinary URL is already complete
 				onImageUploaded(imageUrl);
 			} else {
 				throw new Error(response.data.message || 'Upload failed');

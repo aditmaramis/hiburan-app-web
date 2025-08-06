@@ -95,7 +95,6 @@ export default function EditEventPage() {
 		const loadEventData = async () => {
 			try {
 				setIsLoadingEvent(true);
-				console.log('Loading event data for ID:', eventId);
 
 				// Fetch real event data from API
 				const response = await axios.get(
@@ -107,7 +106,6 @@ export default function EditEventPage() {
 					}
 				);
 
-				console.log('API response:', response.data);
 				const event = response.data.event; // Backend returns { event: {...} }
 
 				// Convert the backend format to frontend format

@@ -86,21 +86,65 @@ export default function EventDetailsPage() {
 	};
 
 	const confirmBooking = async () => {
-		// Mock booking logic - in real app this would call the booking API
 		try {
-			alert(
-				`Successfully booked ${ticketQuantity} ticket(s) for ${event?.title}!`
+			const token = localStorage.getItem('token');
+			if (!token) {
+				router.push('/login');
+				return;
+			}
+
+			const response = await axios.post(
+				'http://localhost:8000/api/bookings',
+				{
+					event_id: event?.id,
+					quantity: ticketQuantity,
+					// Add points and coupon support later
+					use_points: 0,
+					coupon_code: null,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				}
 			);
-			setShowBookingModal(false);
-			if (event) {
-				setEvent({
-					...event,
-					available_seats: event.available_seats - ticketQuantity,
-				});
+
+			if (response.data) {
+				alert(
+					`Booking created successfully! Please go to "My Tickets" to upload payment proof. Booking ID: ${response.data.booking.id}`
+				);
+				setShowBookingModal(false);
+
+				// Update available seats
+				if (event) {
+					setEvent({
+						...event,
+						available_seats: event.available_seats - ticketQuantity,
+					});
+				}
+
+				// Redirect to My Tickets page after successful booking
+				router.push('/my-tickets');
 			}
 		} catch (error) {
 			console.error('Booking error:', error);
-			alert('Failed to book tickets. Please try again.');
+			if (error && typeof error === 'object' && 'response' in error) {
+				const axiosError = error as {
+					response: { data?: { message?: string }; status?: number };
+				};
+				if (axiosError.response?.status === 401) {
+					alert('Authentication failed. Please log in again.');
+					router.push('/login');
+				} else {
+					alert(
+						axiosError.response?.data?.message ||
+							'Failed to book tickets. Please try again.'
+					);
+				}
+			} else {
+				alert('Failed to book tickets. Please try again.');
+			}
 		}
 	};
 
@@ -111,6 +155,14 @@ export default function EventDetailsPage() {
 			month: 'long',
 			day: 'numeric',
 		});
+	};
+
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('id-ID', {
+			style: 'currency',
+			currency: 'IDR',
+			minimumFractionDigits: 0,
+		}).format(amount);
 	};
 
 	const getEventStatus = () => {
@@ -318,7 +370,7 @@ export default function EventDetailsPage() {
 							<div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
 								<div className="text-center mb-6">
 									<div className="text-3xl font-bold text-primary mb-2">
-										${event.price}
+										{formatCurrency(event.price)}
 									</div>
 									<p className="text-gray-600">per ticket</p>
 								</div>
@@ -354,7 +406,7 @@ export default function EventDetailsPage() {
 											<div className="flex justify-between items-center text-lg font-semibold">
 												<span>Total:</span>
 												<span className="text-primary">
-													${event.price * ticketQuantity}
+													{formatCurrency(event.price * ticketQuantity)}
 												</span>
 											</div>
 										</div>
@@ -446,7 +498,7 @@ export default function EventDetailsPage() {
 									<div className="flex justify-between border-t pt-3 font-semibold">
 										<span>Total:</span>
 										<span className="text-primary">
-											${event.price * ticketQuantity}
+											{formatCurrency(event.price * ticketQuantity)}
 										</span>
 									</div>
 								</div>

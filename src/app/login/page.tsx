@@ -101,7 +101,12 @@ export default function LoginPage() {
 							Enter your email below to login to your account
 						</div>
 						<div className="col-start-2 row-span-2 row-start-1 self-start justify-self-end">
-							<Button variant="link">Sign Up</Button>
+							<Button
+								variant="link"
+								onClick={() => router.push('/register')}
+							>
+								Sign Up
+							</Button>
 						</div>
 					</div>
 					{/* Content */}
