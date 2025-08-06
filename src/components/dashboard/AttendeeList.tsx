@@ -43,7 +43,13 @@ export default function AttendeeList({}: AttendeeListProps) {
 	const fetchAttendees = async () => {
 		try {
 			setIsLoading(true);
+			setError(''); // Clear previous errors
 			const token = localStorage.getItem('token');
+
+			if (!token) {
+				setError('Authentication required. Please log in again.');
+				return;
+			}
 
 			const response = await axios.get(
 				'http://localhost:8000/api/bookings/attendees',
@@ -54,13 +60,45 @@ export default function AttendeeList({}: AttendeeListProps) {
 				}
 			);
 
-			setAttendees(response.data.attendees || []);
+			const attendeesData = response.data.attendees || [];
+
+			// Validate data structure
+			const validAttendees = attendeesData.filter(
+				(attendee: Partial<Attendee>) => {
+					return (
+						attendee &&
+						attendee.id &&
+						attendee.user &&
+						attendee.user.id &&
+						attendee.event &&
+						attendee.event.id
+					);
+				}
+			) as Attendee[];
+
+			setAttendees(validAttendees);
+
+			if (validAttendees.length < attendeesData.length) {
+				console.warn(
+					`Filtered out ${
+						attendeesData.length - validAttendees.length
+					} invalid attendee records`
+				);
+			}
 		} catch (error: unknown) {
 			console.error('Error fetching attendees:', error);
-			setError(
-				(error as AxiosError<{ message: string }>)?.response?.data?.message ||
-					'Failed to fetch attendees'
-			);
+			if (error && typeof error === 'object' && 'response' in error) {
+				const axiosError = error as AxiosError<{ message: string }>;
+				if (axiosError.response?.status === 401) {
+					setError('Authentication failed. Please log in again.');
+				} else {
+					setError(
+						axiosError.response?.data?.message || 'Failed to fetch attendees'
+					);
+				}
+			} else {
+				setError('Network error. Please check your connection.');
+			}
 		} finally {
 			setIsLoading(false);
 		}
@@ -96,7 +134,11 @@ export default function AttendeeList({}: AttendeeListProps) {
 	// Get unique events for filter
 	const uniqueEvents = attendees.reduce(
 		(acc: Array<{ id: number; title: string }>, attendee) => {
-			if (!acc.find((event) => event.id === attendee.event.id)) {
+			// Safety check: make sure attendee.event exists
+			if (
+				attendee.event &&
+				!acc.find((event) => event.id === attendee.event.id)
+			) {
 				acc.push({
 					id: attendee.event.id,
 					title: attendee.event.title,
@@ -110,19 +152,23 @@ export default function AttendeeList({}: AttendeeListProps) {
 	// Filter attendees by selected event
 	const filteredAttendees =
 		selectedEvent === 'all'
-			? attendees
+			? attendees.filter((attendee) => attendee.event) // Only show attendees with event data
 			: attendees.filter(
-					(attendee) => attendee.event.id.toString() === selectedEvent
+					(attendee) =>
+						attendee.event && attendee.event.id.toString() === selectedEvent
 			  );
 
 	// Group attendees by event
 	const attendeesByEvent = filteredAttendees.reduce(
 		(acc: Record<string, Attendee[]>, attendee) => {
-			const eventKey = `${attendee.event.id}-${attendee.event.title}`;
-			if (!acc[eventKey]) {
-				acc[eventKey] = [];
+			// Safety check: make sure attendee.event exists
+			if (attendee.event) {
+				const eventKey = `${attendee.event.id}-${attendee.event.title}`;
+				if (!acc[eventKey]) {
+					acc[eventKey] = [];
+				}
+				acc[eventKey].push(attendee);
 			}
-			acc[eventKey].push(attendee);
 			return acc;
 		},
 		{}
@@ -192,7 +238,12 @@ export default function AttendeeList({}: AttendeeListProps) {
 				<div className="space-y-8">
 					{Object.entries(attendeesByEvent).map(
 						([eventKey, eventAttendees]) => {
-							const event = eventAttendees[0].event;
+							const event = eventAttendees[0]?.event;
+
+							// Safety check: make sure event exists
+							if (!event) {
+								return null;
+							}
 
 							return (
 								<div
@@ -232,61 +283,72 @@ export default function AttendeeList({}: AttendeeListProps) {
 
 									{/* Attendees for this event */}
 									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-										{eventAttendees.map((attendee) => (
-											<Card
-												key={attendee.id}
-												className="p-4"
-											>
-												<div className="space-y-3">
-													{/* Attendee Info */}
-													<div>
-														<h4 className="font-semibold text-gray-900">
-															{attendee.user.name}
-														</h4>
-														<p className="text-sm text-gray-600">
-															{attendee.user.email}
-														</p>
-													</div>
+										{eventAttendees.map((attendee) => {
+											// Safety check: make sure attendee and user exist
+											if (!attendee?.user) {
+												return null;
+											}
 
-													{/* Booking Details */}
-													<div className="space-y-1 text-sm">
-														<div className="flex justify-between">
-															<span className="text-gray-600">Tickets:</span>
-															<span className="font-medium">
-																{attendee.quantity}
-															</span>
+											return (
+												<Card
+													key={attendee.id}
+													className="p-4"
+												>
+													<div className="space-y-3">
+														{/* Attendee Info */}
+														<div>
+															<h4 className="font-semibold text-gray-900">
+																{attendee.user.name}
+															</h4>
+															<p className="text-sm text-gray-600">
+																{attendee.user.email}
+															</p>
 														</div>
-														<div className="flex justify-between">
-															<span className="text-gray-600">Total Paid:</span>
-															<span className="font-medium">
-																{formatCurrency(attendee.total_price)}
-															</span>
-														</div>
-														<div className="flex justify-between">
-															<span className="text-gray-600">Booked:</span>
-															<span className="font-medium">
-																{formatDate(attendee.booking_date)}
-															</span>
-														</div>
-														{attendee.payments.length > 0 && (
+
+														{/* Booking Details */}
+														<div className="space-y-1 text-sm">
 															<div className="flex justify-between">
-																<span className="text-gray-600">Payment:</span>
+																<span className="text-gray-600">Tickets:</span>
 																<span className="font-medium">
-																	{attendee.payments[0].payment_method}
+																	{attendee.quantity}
 																</span>
 															</div>
-														)}
-													</div>
+															<div className="flex justify-between">
+																<span className="text-gray-600">
+																	Total Paid:
+																</span>
+																<span className="font-medium">
+																	{formatCurrency(attendee.total_price)}
+																</span>
+															</div>
+															<div className="flex justify-between">
+																<span className="text-gray-600">Booked:</span>
+																<span className="font-medium">
+																	{formatDate(attendee.booking_date)}
+																</span>
+															</div>
+															{attendee.payments?.length > 0 && (
+																<div className="flex justify-between">
+																	<span className="text-gray-600">
+																		Payment:
+																	</span>
+																	<span className="font-medium">
+																		{attendee.payments[0].payment_method}
+																	</span>
+																</div>
+															)}
+														</div>
 
-													{/* Status Badge */}
-													<div className="pt-2 border-t">
-														<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-															✓ Confirmed
-														</span>
+														{/* Status Badge */}
+														<div className="pt-2 border-t">
+															<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+																✓ Confirmed
+															</span>
+														</div>
 													</div>
-												</div>
-											</Card>
-										))}
+												</Card>
+											);
+										})}
 									</div>
 								</div>
 							);
