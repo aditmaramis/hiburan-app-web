@@ -31,13 +31,11 @@ export function ReviewCard({
   onReviewUpdated,
   onEditClick,
 }: ReviewCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const isOwnReview = currentUserId === review.user.id;
 
   const handleDelete = async () => {
-    setIsDeleting(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -51,11 +49,10 @@ export function ReviewCard({
       });
 
       onReviewUpdated?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting review:', error);
       alert('Failed to delete review. Please try again.');
     } finally {
-      setIsDeleting(false);
       setShowDeleteDialog(false);
     }
   };

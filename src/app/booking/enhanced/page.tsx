@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,7 +45,7 @@ interface BookingResult {
 	payment_deadline: string;
 }
 
-export default function EnhancedBookingPage() {
+function EnhancedBookingContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const eventId = searchParams.get('event_id');
@@ -64,33 +64,7 @@ export default function EnhancedBookingPage() {
 		'booking'
 	);
 
-	useEffect(() => {
-		if (eventId) {
-			fetchEvent(parseInt(eventId));
-		}
-	}, [eventId]);
-
-	useEffect(() => {
-		if (eventId && quantity > 0) {
-			fetchPricePreview();
-		}
-	}, [eventId, quantity, usePoints, couponCode]);
-
-	const fetchEvent = async (id: number) => {
-		try {
-			const response = await fetch(`/api/v1/events/${id}`);
-			if (response.ok) {
-				const data = await response.json();
-				setEvent(data.event);
-			} else {
-				setError('Event not found');
-			}
-		} catch {
-			setError('Failed to load event');
-		}
-	};
-
-	const fetchPricePreview = async () => {
+	const fetchPricePreview = useCallback(async () => {
 		try {
 			const response = await fetch('/api/v1/enhanced/bookings/preview', {
 				method: 'POST',
@@ -112,6 +86,32 @@ export default function EnhancedBookingPage() {
 			}
 		} catch {
 			console.error('Failed to fetch price preview');
+		}
+	}, [eventId, quantity, usePoints, couponCode]);
+
+	useEffect(() => {
+		if (eventId) {
+			fetchEvent(parseInt(eventId));
+		}
+	}, [eventId]);
+
+	useEffect(() => {
+		if (eventId && quantity > 0) {
+			fetchPricePreview();
+		}
+	}, [eventId, quantity, usePoints, couponCode, fetchPricePreview]);
+
+	const fetchEvent = async (id: number) => {
+		try {
+			const response = await fetch(`/api/v1/events/${id}`);
+			if (response.ok) {
+				const data = await response.json();
+				setEvent(data.event);
+			} else {
+				setError('Event not found');
+			}
+		} catch {
+			setError('Failed to load event');
 		}
 	};
 
@@ -487,5 +487,20 @@ export default function EnhancedBookingPage() {
 				)}
 			</div>
 		</div>
+	);
+}
+
+export default function EnhancedBookingPage() {
+	return (
+		<Suspense fallback={
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+					<p>Loading booking page...</p>
+				</div>
+			</div>
+		}>
+			<EnhancedBookingContent />
+		</Suspense>
 	);
 }

@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ReviewCard, Review } from '@/components/reviews/review-card';
@@ -51,7 +52,7 @@ export default function MyReviewsPage() {
       );
 
       setReviews(response.data.reviews);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching reviews:', error);
       setError('Failed to load your reviews');
     } finally {
@@ -82,7 +83,7 @@ export default function MyReviewsPage() {
         <Navbar />
         <div className="min-h-screen bg-gray-50 py-8">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="animate-pulse space-y-6">
+            <div className="space-y-6">
               <div className="h-8 bg-gray-200 rounded w-1/3"></div>
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-40 bg-gray-200 rounded"></div>
@@ -122,10 +123,11 @@ export default function MyReviewsPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-16 h-16 relative bg-gray-200 rounded-lg overflow-hidden">
                     {editingReview.event.image ? (
-                      <img
+                      <Image
                         src={editingReview.event.image}
                         alt={editingReview.event.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
@@ -184,8 +186,8 @@ export default function MyReviewsPage() {
                   No reviews yet
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  You haven't written any reviews yet. Attend some events and
-                  share your experience!
+                  You haven&apos;t written any reviews yet. Attend some events
+                  and share your experience!
                 </p>
                 <Button
                   onClick={() => router.push('/')}
@@ -204,10 +206,11 @@ export default function MyReviewsPage() {
                   <div className="flex items-center gap-4 mb-4 pb-4 border-b">
                     <div className="w-16 h-16 relative bg-gray-200 rounded-lg overflow-hidden">
                       {review.event.image ? (
-                        <img
+                        <Image
                           src={review.event.image}
                           alt={review.event.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>

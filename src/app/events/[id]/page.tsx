@@ -482,7 +482,7 @@ export default function EventDetailsPage() {
                 Write Review
               </button>
             </div>
-            <ReviewsList eventId={event.id} eventTitle={event.title} />
+            <ReviewsList eventId={event.id} />
           </div>
         </div>
 

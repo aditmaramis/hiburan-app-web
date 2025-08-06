@@ -6,10 +6,10 @@ const BACKEND_URL =
 
 export async function POST(
 	request: NextRequest,
-	{ params }: { params: { bookingId: string } }
+	{ params }: { params: Promise<{ bookingId: string }> }
 ) {
 	try {
-		const { bookingId } = params;
+		const { bookingId } = await params;
 
 		// Get the authorization header from the request
 		const authorization = request.headers.get('authorization');

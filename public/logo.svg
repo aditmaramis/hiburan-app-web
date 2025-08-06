@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#6366F1"/>
+  
+  <!-- Musical note -->
+  <path d="M12 8.5C12 8.22386 12.2239 8 12.5 8H20.5C20.7761 8 21 8.22386 21 8.5V18.5C21 19.8807 19.8807 21 18.5 21C17.1193 21 16 19.8807 16 18.5C16 17.1193 17.1193 16 18.5 16C19.0523 16 19.5613 16.1618 20 16.4472V12H14V20.5C14 21.8807 12.8807 23 11.5 23C10.1193 23 9 21.8807 9 20.5C9 19.1193 10.1193 18 11.5 18C12.0523 18 12.5613 18.1618 13 18.4472V8.5H12Z" fill="white"/>
+  
+  <!-- Party/Entertainment elements -->
+  <circle cx="8" cy="12" r="1.5" fill="#FDE047"/>
+  <circle cx="24" cy="12" r="1.5" fill="#FDE047"/>
+  <circle cx="6" cy="20" r="1" fill="#34D399"/>
+  <circle cx="26" cy="20" r="1" fill="#34D399"/>
+</svg>

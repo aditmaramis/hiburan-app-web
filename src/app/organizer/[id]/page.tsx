@@ -12,13 +12,17 @@ interface OrganizerProfile {
     id: number;
     name: string | null;
     email: string;
+    profile_picture?: string | null;
+    created_at: string;
   };
-  stats: {
-    totalEvents: number;
-    totalBookings: number;
-    averageRating: number;
-    totalReviews: number;
-    distribution: {
+  statistics: {
+    total_events: number;
+    past_events: number;
+    upcoming_events: number;
+    total_tickets_sold: number;
+    average_rating: number;
+    total_reviews: number;
+    rating_distribution: {
       1: number;
       2: number;
       3: number;
@@ -26,15 +30,40 @@ interface OrganizerProfile {
       5: number;
     };
   };
-  events: Array<{
+  recent_reviews: Array<{
     id: number;
-    title: string;
-    date: string;
-    image: string | null;
-    category: string;
-    averageRating: number;
-    reviewCount: number;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+    events: {
+      id: number;
+      title: string;
+    };
+    users: {
+      id: number;
+      name: string | null;
+      profile_picture: string | null;
+    };
   }>;
+  events: {
+    total: number;
+    past: Array<{
+      id: number;
+      title: string;
+      date: string;
+      category: string;
+      total_seats: number;
+      available_seats: number;
+    }>;
+    upcoming: Array<{
+      id: number;
+      title: string;
+      date: string;
+      category: string;
+      total_seats: number;
+      available_seats: number;
+    }>;
+  };
 }
 
 export default function OrganizerProfilePage() {
@@ -57,7 +86,7 @@ export default function OrganizerProfilePage() {
         `http://localhost:8000/api/reviews/organizer/${organizerId}`
       );
       setProfile(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching organizer profile:', error);
       setError('Failed to load organizer profile');
     } finally {
@@ -80,12 +109,12 @@ export default function OrganizerProfilePage() {
       <div className="space-y-2">
         {[5, 4, 3, 2, 1].map((rating) => {
           const count =
-            profile.stats.distribution[
-              rating as keyof typeof profile.stats.distribution
+            profile.statistics.rating_distribution[
+              rating as keyof typeof profile.statistics.rating_distribution
             ];
           const percentage =
-            profile.stats.totalReviews > 0
-              ? (count / profile.stats.totalReviews) * 100
+            profile.statistics.total_reviews > 0
+              ? (count / profile.statistics.total_reviews) * 100
               : 0;
 
           return (
@@ -161,16 +190,16 @@ export default function OrganizerProfilePage() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">
-                  {profile.stats.averageRating.toFixed(1)}
+                  {profile.statistics.average_rating.toFixed(1)}
                 </div>
                 <StarRating
-                  rating={Math.round(profile.stats.averageRating)}
+                  rating={Math.round(profile.statistics.average_rating)}
                   readonly
                   size="lg"
                 />
                 <p className="text-sm text-gray-600 mt-1">
-                  {profile.stats.totalReviews} review
-                  {profile.stats.totalReviews !== 1 ? 's' : ''}
+                  {profile.statistics.total_reviews} review
+                  {profile.statistics.total_reviews !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -180,25 +209,25 @@ export default function OrganizerProfilePage() {
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
               <div className="text-3xl font-bold text-blue-600 mb-2">
-                {profile.stats.totalEvents}
+                {profile.statistics.total_events}
               </div>
               <p className="text-gray-600">Total Events</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
               <div className="text-3xl font-bold text-green-600 mb-2">
-                {profile.stats.totalBookings}
+                {profile.statistics.total_tickets_sold}
               </div>
-              <p className="text-gray-600">Total Bookings</p>
+              <p className="text-gray-600">Total Tickets Sold</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
               <div className="text-3xl font-bold text-yellow-600 mb-2">
-                {profile.stats.averageRating.toFixed(1)}
+                {profile.statistics.average_rating.toFixed(1)}
               </div>
               <p className="text-gray-600">Average Rating</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
               <div className="text-3xl font-bold text-purple-600 mb-2">
-                {profile.stats.totalReviews}
+                {profile.statistics.total_reviews}
               </div>
               <p className="text-gray-600">Total Reviews</p>
             </div>
@@ -217,65 +246,57 @@ export default function OrganizerProfilePage() {
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h2 className="text-xl font-bold mb-6">Events</h2>
                 <div className="grid gap-4">
-                  {profile.events.length === 0 ? (
+                  {profile.events.total === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <p>No events found</p>
                     </div>
                   ) : (
-                    profile.events.map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-                        onClick={() => router.push(`/events/${event.id}`)}
-                      >
-                        <div className="w-16 h-16 relative bg-gray-200 rounded-lg overflow-hidden">
-                          {event.image ? (
-                            <img
-                              src={event.image}
-                              alt={event.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">
-                            {event.title}
-                          </h3>
-                          <p className="text-sm text-gray-500 mb-2">
-                            {formatDate(event.date)} • {event.category}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <StarRating
-                              rating={Math.round(event.averageRating)}
-                              readonly
-                              size="sm"
-                            />
-                            <span className="text-sm text-gray-600">
-                              {event.averageRating.toFixed(1)} (
-                              {event.reviewCount} review
-                              {event.reviewCount !== 1 ? 's' : ''})
-                            </span>
+                    [...profile.events.past, ...profile.events.upcoming].map(
+                      (event) => (
+                        <div
+                          key={event.id}
+                          className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => router.push(`/events/${event.id}`)}
+                        >
+                          <div className="w-16 h-16 relative bg-gray-200 rounded-lg overflow-hidden">
+                            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                              <span className="text-white text-sm font-bold">
+                                {event.category.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 mb-1">
+                              {event.title}
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-2">
+                              {formatDate(event.date)} • {event.category}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-600">
+                                {event.total_seats - event.available_seats}/
+                                {event.total_seats} tickets sold
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-gray-400">
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
                           </div>
                         </div>
-                        <div className="text-gray-400">
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                    ))
+                      )
+                    )
                   )}
                 </div>
               </div>

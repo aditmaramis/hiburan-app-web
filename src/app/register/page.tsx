@@ -95,6 +95,18 @@ export default function RegisterPage() {
 			{/* Centered card (custom, not shadcn) */}
 			<div className="flex flex-1 items-center justify-center p-6 md:p-12 min-h-screen">
 				<div className="w-full max-w-sm bg-white rounded-xl p-6 md:p-8 flex flex-col gap-6">
+					{/* Logo */}
+					<div className="flex items-center justify-center gap-2 mb-2">
+						<Image
+							src="/logo.svg"
+							alt="HiburanApp Logo"
+							width={40}
+							height={40}
+							className="object-contain"
+						/>
+						<span className="text-2xl font-bold text-primary">HiburanApp</span>
+					</div>
+					
 					{/* Header */}
 					<div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-0">
 						<div className="leading-none font-semibold text-xl">

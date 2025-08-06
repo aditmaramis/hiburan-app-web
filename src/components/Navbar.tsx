@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -48,10 +49,12 @@ export default function Navbar() {
 				href="/"
 				className="flex items-center gap-2 text-xl font-bold text-primary"
 			>
-				<img
+				<Image
 					src="/logo.svg"
 					alt="Logo"
-					className="h-8 w-8 object-contain"
+					width={32}
+					height={32}
+					className="object-contain"
 				/>
 				HiburanApp
 			</Link>

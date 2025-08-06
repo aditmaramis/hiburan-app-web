@@ -8,7 +8,6 @@ import axios from 'axios';
 
 interface ReviewsListProps {
   eventId: number;
-  eventTitle: string;
 }
 
 interface ReviewStats {
@@ -23,7 +22,7 @@ interface ReviewStats {
   };
 }
 
-export function ReviewsList({ eventId, eventTitle }: ReviewsListProps) {
+export function ReviewsList({ eventId }: ReviewsListProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,11 +103,11 @@ export function ReviewsList({ eventId, eventTitle }: ReviewsListProps) {
               : null;
             setUserReview(existingReview || null);
           }
-        } catch (error) {
+        } catch {
           // User not authenticated, ignore
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching reviews:', error);
       setError('Failed to load reviews');
     } finally {
@@ -139,7 +138,7 @@ export function ReviewsList({ eventId, eventTitle }: ReviewsListProps) {
         Array.isArray(response.data.events)
       ) {
         const canReviewThis = response.data.events.some(
-          (event: any) => event.id === eventId
+          (event: { id: number }) => event.id === eventId
         );
         setCanReview(canReviewThis);
       } else {

@@ -69,12 +69,17 @@ export function ReviewForm({
       });
 
       onReviewSubmitted();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting review:', error);
-      setError(
-        error.response?.data?.message ||
-          'Failed to submit review. Please try again.'
-      );
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response: { data?: { message?: string } } };
+        setError(
+          axiosError.response?.data?.message ||
+            'Failed to submit review. Please try again.'
+        );
+      } else {
+        setError('Failed to submit review. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

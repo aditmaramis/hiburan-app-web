@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
 	return (
@@ -8,9 +9,13 @@ export default function Footer() {
 					{/* Company Info */}
 					<div className="col-span-1">
 						<div className="flex items-center gap-2 text-xl font-bold mb-4">
-							<div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-								<span className="text-white font-bold text-sm">H</span>
-							</div>
+							<Image
+								src="/logo.svg"
+								alt="HiburanApp Logo"
+								width={32}
+								height={32}
+								className="object-contain"
+							/>
 							HiburanApp
 						</div>
 						<p className="text-gray-400 mb-4">
