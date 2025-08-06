@@ -30,13 +30,41 @@ interface EventListHomeProps {
 	locationQuery?: string;
 	categoryFilter?: string;
 	dateFilter?: string;
+	limit?: number; // Optional limit for number of events to show
+	showPastEvents?: boolean; // Whether to include past events
 }
+
+// Function to get category colors
+const getCategoryColors = (category: string) => {
+	switch (category.toLowerCase()) {
+		case 'music':
+			return 'bg-gradient-to-r from-purple-500/40 to-pink-500/30 border-purple-400/50 text-white';
+		case 'sports':
+			return 'bg-gradient-to-r from-green-500/40 to-emerald-500/30 border-green-400/50 text-white';
+		case 'technology':
+			return 'bg-gradient-to-r from-blue-500/40 to-cyan-500/30 border-blue-400/50 text-white';
+		case 'food & drink':
+		case 'food':
+			return 'bg-gradient-to-r from-orange-500/40 to-red-500/30 border-orange-400/50 text-white';
+		case 'art & culture':
+		case 'art':
+			return 'bg-gradient-to-r from-indigo-500/40 to-purple-500/30 border-indigo-400/50 text-white';
+		case 'business':
+			return 'bg-gradient-to-r from-gray-500/40 to-slate-500/30 border-gray-400/50 text-white';
+		case 'education':
+			return 'bg-gradient-to-r from-yellow-500/40 to-amber-500/30 border-yellow-400/50 text-white';
+		default:
+			return 'bg-white/20 text-white border-white/30';
+	}
+};
 
 export default function EventListHome({
 	searchQuery = '',
 	locationQuery = '',
 	categoryFilter = 'all',
 	dateFilter = '',
+	limit,
+	showPastEvents = false, // Default to false (upcoming only)
 }: EventListHomeProps) {
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -69,6 +97,20 @@ export default function EventListHome({
 	};
 
 	const filteredEvents = events.filter((event) => {
+		// Date filtering logic - show upcoming events only unless showPastEvents is true
+		const eventDate = new Date(event.date);
+		const now = new Date();
+
+		let isUpcoming = true;
+		if (!showPastEvents) {
+			// Handle UTC dates properly by comparing dates in UTC
+			// Convert both dates to YYYY-MM-DD format for comparison
+			const eventDateStr = eventDate.toISOString().split('T')[0];
+			const nowDateStr = now.toISOString().split('T')[0];
+
+			isUpcoming = eventDateStr >= nowDateStr;
+		}
+
 		// Category filter
 		const categoryMatch =
 			selectedCategory === 'all' || event.category === selectedCategory;
@@ -87,8 +129,6 @@ export default function EventListHome({
 		// Date filter for quick filters
 		let dateMatch = true;
 		if (dateFilter) {
-			const eventDate = new Date(event.date);
-			const now = new Date();
 			const startOfWeek = new Date(now);
 			startOfWeek.setDate(now.getDate() - now.getDay());
 			const endOfWeek = new Date(startOfWeek);
@@ -117,17 +157,40 @@ export default function EventListHome({
 			}
 		}
 
-		return categoryMatch && searchMatch && locationMatch && dateMatch;
+		return (
+			isUpcoming && categoryMatch && searchMatch && locationMatch && dateMatch
+		);
 	});
 
-	// Debug logging
-	console.log('Selected Category:', selectedCategory);
-	console.log('Total Events:', events.length);
-	console.log('Filtered Events:', filteredEvents.length);
-	console.log(
-		'Events:',
-		events.map((e) => ({ title: e.title, category: e.category }))
-	);
+	// Sort events: upcoming events first (sorted by date ascending), then past events (sorted by date descending)
+	const sortedEvents = filteredEvents.sort((a, b) => {
+		const dateA = new Date(a.date);
+		const dateB = new Date(b.date);
+		const now = new Date();
+
+		// Convert to date strings for comparison (same logic as filter)
+		const dateAStr = dateA.toISOString().split('T')[0];
+		const dateBStr = dateB.toISOString().split('T')[0];
+		const nowStr = now.toISOString().split('T')[0];
+
+		const isUpcomingA = dateAStr >= nowStr;
+		const isUpcomingB = dateBStr >= nowStr;
+
+		// If one is upcoming and one is past, upcoming comes first
+		if (isUpcomingA && !isUpcomingB) return -1;
+		if (!isUpcomingA && isUpcomingB) return 1;
+
+		// If both are upcoming, sort by date ascending (soonest first)
+		if (isUpcomingA && isUpcomingB) {
+			return dateA.getTime() - dateB.getTime();
+		}
+
+		// If both are past, sort by date descending (most recent first)
+		return dateB.getTime() - dateA.getTime();
+	});
+
+	// Apply limit if specified
+	const displayEvents = limit ? sortedEvents.slice(0, limit) : sortedEvents;
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('en-US', {
@@ -185,9 +248,9 @@ export default function EventListHome({
 	return (
 		<div className="space-y-8">
 			{/* Events Grid */}
-			{filteredEvents.length > 0 ? (
-				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-					{filteredEvents.map((event) => {
+			{displayEvents.length > 0 ? (
+				<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+					{displayEvents.map((event) => {
 						const status = getEventStatus(event);
 						return (
 							<div
@@ -231,25 +294,29 @@ export default function EventListHome({
 								</div>
 
 								{/* Event Details */}
-								<div className="p-6">
+								<div className="p-4">
 									<div className="flex justify-between items-start mb-2">
-										<span className="inline-block bg-white/20 text-white px-2 py-1 rounded text-xs font-medium capitalize backdrop-blur-sm border border-white/20">
+										<span
+											className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize backdrop-blur-sm border ${getCategoryColors(
+												event.category
+											)}`}
+										>
 											{event.category}
 										</span>
-										<span className="text-2xl font-bold text-white">
+										<span className="text-lg font-bold text-white">
 											{formatCurrency(parseFloat(event.price))}
 										</span>
 									</div>
 
-									<h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+									<h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
 										{event.title}
 									</h3>
 
-									<p className="text-white/70 text-sm mb-4 line-clamp-2">
+									<p className="text-white/70 text-xs mb-3 line-clamp-2">
 										{event.description}
 									</p>
 
-									<div className="space-y-2 text-sm text-white/60 mb-4">
+									<div className="space-y-1 text-xs text-white/60 mb-3">
 										<div className="flex items-center">
 											<svg
 												className="w-4 h-4 mr-2"
@@ -310,7 +377,7 @@ export default function EventListHome({
 									{/* Book Now Button */}
 									<Link href={`/events/${event.id}`}>
 										<button
-											className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 backdrop-blur-sm border ${
+											className={`w-full py-1.5 px-3 rounded-lg font-medium text-sm transition-all duration-300 backdrop-blur-sm border ${
 												event.available_seats > 0
 													? 'bg-white/20 text-white hover:bg-white/30 border-white/30'
 													: 'bg-white/10 text-white/50 cursor-not-allowed border-white/20'
