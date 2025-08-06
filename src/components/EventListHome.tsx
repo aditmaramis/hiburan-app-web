@@ -102,7 +102,7 @@ export default function EventListHome() {
 	if (loading) {
 		return (
 			<div className="flex justify-center items-center py-12">
-				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50"></div>
 			</div>
 		);
 	}
@@ -110,10 +110,10 @@ export default function EventListHome() {
 	if (error) {
 		return (
 			<div className="text-center py-12">
-				<div className="text-red-500 mb-4">{error}</div>
+				<div className="text-red-300 mb-4">{error}</div>
 				<button
 					onClick={fetchEvents}
-					className="bg-primary text-white px-6 py-2 rounded hover:bg-primary/90 transition"
+					className="glass text-white px-6 py-2 rounded-lg hover:bg-white/20 transition-all duration-300 border border-white/20"
 				>
 					Try Again
 				</button>
@@ -129,10 +129,10 @@ export default function EventListHome() {
 					<button
 						key={category.value}
 						onClick={() => setSelectedCategory(category.value)}
-						className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+						className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm border ${
 							selectedCategory === category.value
-								? 'bg-primary text-white'
-								: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+								? 'bg-white/20 text-white border-white/30 shadow-lg'
+								: 'bg-white/10 text-white/80 border-white/20 hover:bg-white/20 hover:text-white'
 						}`}
 					>
 						{category.label}
@@ -148,20 +148,20 @@ export default function EventListHome() {
 						return (
 							<div
 								key={event.id}
-								className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+								className="glass-dark rounded-xl overflow-hidden hover:bg-white/20 transition-all duration-300 border border-white/20 group"
 							>
 								{/* Event Image */}
-								<div className="h-48 bg-gray-200 relative">
+								<div className="h-48 bg-white/10 relative overflow-hidden">
 									{event.image ? (
 										<Image
 											src={event.image}
 											alt={event.title}
 											fill
-											className="object-cover"
+											className="object-cover group-hover:scale-105 transition-transform duration-300"
 											sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 										/>
 									) : (
-										<div className="w-full h-full flex items-center justify-center text-gray-400">
+										<div className="w-full h-full flex items-center justify-center text-white/40">
 											<svg
 												className="w-16 h-16"
 												fill="none"
@@ -180,7 +180,7 @@ export default function EventListHome() {
 
 									{/* Status Badge */}
 									<div
-										className={`absolute top-3 right-3 ${status.color} text-white px-2 py-1 rounded-full text-xs font-medium`}
+										className={`absolute top-3 right-3 ${status.color} text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm border border-white/20`}
 									>
 										{status.label}
 									</div>
@@ -189,23 +189,23 @@ export default function EventListHome() {
 								{/* Event Details */}
 								<div className="p-6">
 									<div className="flex justify-between items-start mb-2">
-										<span className="inline-block bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium capitalize">
+										<span className="inline-block bg-white/20 text-white px-2 py-1 rounded text-xs font-medium capitalize backdrop-blur-sm border border-white/20">
 											{event.category}
 										</span>
-										<span className="text-2xl font-bold text-primary">
+										<span className="text-2xl font-bold text-white">
 											{formatCurrency(parseFloat(event.price))}
 										</span>
 									</div>
 
-									<h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+									<h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
 										{event.title}
 									</h3>
 
-									<p className="text-gray-600 text-sm mb-4 line-clamp-2">
+									<p className="text-white/70 text-sm mb-4 line-clamp-2">
 										{event.description}
 									</p>
 
-									<div className="space-y-2 text-sm text-gray-500 mb-4">
+									<div className="space-y-2 text-sm text-white/60 mb-4">
 										<div className="flex items-center">
 											<svg
 												className="w-4 h-4 mr-2"
@@ -266,10 +266,10 @@ export default function EventListHome() {
 									{/* Book Now Button */}
 									<Link href={`/events/${event.id}`}>
 										<button
-											className={`w-full py-2 px-4 rounded font-medium transition ${
+											className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 backdrop-blur-sm border ${
 												event.available_seats > 0
-													? 'bg-primary text-white hover:bg-primary/90'
-													: 'bg-gray-300 text-gray-500 cursor-not-allowed'
+													? 'bg-white/20 text-white hover:bg-white/30 border-white/30'
+													: 'bg-white/10 text-white/50 cursor-not-allowed border-white/20'
 											}`}
 											disabled={event.available_seats === 0}
 										>
@@ -283,7 +283,7 @@ export default function EventListHome() {
 				</div>
 			) : (
 				<div className="text-center py-12">
-					<div className="text-gray-400 mb-4">
+					<div className="text-white/40 mb-4">
 						<svg
 							className="mx-auto h-24 w-24"
 							fill="none"
@@ -298,10 +298,10 @@ export default function EventListHome() {
 							/>
 						</svg>
 					</div>
-					<h3 className="text-lg font-medium text-gray-900 mb-2">
+					<h3 className="text-lg font-medium text-white mb-2">
 						No events found
 					</h3>
-					<p className="text-gray-600">
+					<p className="text-white/70">
 						{selectedCategory === 'all'
 							? 'There are no events available at the moment.'
 							: `No events found in the ${categories

@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import TransactionStatusBadge, {
+	TransactionStatus,
+} from '@/components/ui/transaction-status-badge';
 import Image from 'next/image';
 
 interface Transaction {
@@ -115,22 +118,6 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 		}
 	};
 
-	const getStatusColor = (status: string) => {
-		switch (status.toLowerCase()) {
-			case 'pending':
-				return 'text-yellow-600 bg-yellow-100';
-			case 'waiting_for_admin_confirmation':
-				return 'text-blue-600 bg-blue-100';
-			case 'accepted':
-			case 'confirmed':
-				return 'text-green-600 bg-green-100';
-			case 'rejected':
-				return 'text-red-600 bg-red-100';
-			default:
-				return 'text-gray-600 bg-gray-100';
-		}
-	};
-
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('id-ID', {
 			style: 'currency',
@@ -196,16 +183,9 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 									</h3>
 									<p className="text-gray-600">Transaction #{transaction.id}</p>
 								</div>
-								<span
-									className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-										transaction.status
-									)}`}
-								>
-									{transaction.status === 'waiting_for_admin_confirmation'
-										? 'Waiting for Admin Confirmation'
-										: transaction.status.charAt(0).toUpperCase() +
-										  transaction.status.slice(1)}
-								</span>
+								<TransactionStatusBadge
+									status={transaction.status as TransactionStatus}
+								/>
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

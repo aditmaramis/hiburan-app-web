@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
+import TransactionStatusBadge, {
+	type TransactionStatus,
+} from '@/components/ui/transaction-status-badge';
 
 interface Booking {
 	id: number;
@@ -103,22 +106,6 @@ export default function MyTicketsPage() {
 
 		initializeAndFetchData();
 	}, [router]);
-
-	const getStatusBadge = (status: string) => {
-		const baseClasses = 'px-3 py-1 rounded-full text-sm font-medium';
-		switch (status.toLowerCase()) {
-			case 'pending':
-				return `${baseClasses} bg-yellow-100 text-yellow-800`;
-			case 'confirmed':
-				return `${baseClasses} bg-green-100 text-green-800`;
-			case 'rejected':
-				return `${baseClasses} bg-red-100 text-red-800`;
-			case 'cancelled':
-				return `${baseClasses} bg-gray-100 text-gray-800`;
-			default:
-				return `${baseClasses} bg-gray-100 text-gray-800`;
-		}
-	};
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('en-US', {
@@ -335,9 +322,9 @@ export default function MyTicketsPage() {
 										<h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
 											{booking.events?.title || 'Event Title Unavailable'}
 										</h3>
-										<span className={getStatusBadge(booking.status)}>
-											{booking.status}
-										</span>
+										<TransactionStatusBadge
+											status={booking.status as TransactionStatus}
+										/>
 									</div>
 
 									<div className="space-y-2 text-sm text-gray-600 mb-4">
