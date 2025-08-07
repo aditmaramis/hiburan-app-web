@@ -4,12 +4,11 @@ const BACKEND_URL =
 	process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
 	'http://localhost:8000';
 
-export async function POST(
-	request: NextRequest,
-	{ params }: { params: { bookingId: string } }
-) {
+export async function POST(request: NextRequest) {
 	try {
-		const { bookingId } = params;
+		// Extract bookingId from the URL
+		const segments = request.nextUrl.pathname.split('/');
+		const bookingId = segments[segments.length - 2];
 
 		// Get the authorization header from the request
 		const authorization = request.headers.get('authorization');
