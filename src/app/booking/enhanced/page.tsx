@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,12 +70,6 @@ export default function EnhancedBookingPage() {
 		}
 	}, [eventId]);
 
-	useEffect(() => {
-		if (eventId && quantity > 0) {
-			fetchPricePreview();
-		}
-	}, [eventId, quantity, usePoints, couponCode]);
-
 	const fetchEvent = async (id: number) => {
 		try {
 			const response = await fetch(`/api/v1/events/${id}`);
@@ -90,7 +84,7 @@ export default function EnhancedBookingPage() {
 		}
 	};
 
-	const fetchPricePreview = async () => {
+	const fetchPricePreview = useCallback(async () => {
 		try {
 			const response = await fetch('/api/v1/enhanced/bookings/preview', {
 				method: 'POST',
@@ -113,7 +107,13 @@ export default function EnhancedBookingPage() {
 		} catch {
 			console.error('Failed to fetch price preview');
 		}
-	};
+	}, [eventId, quantity, usePoints, couponCode]);
+
+	useEffect(() => {
+		if (eventId && quantity > 0) {
+			fetchPricePreview();
+		}
+	}, [eventId, quantity, usePoints, couponCode, fetchPricePreview]);
 
 	const handleBooking = async () => {
 		if (!event || !pricePreview) return;
