@@ -380,7 +380,7 @@ export default function EventListHome({
 											<button
 												className={`w-full py-1.5 px-3 rounded-lg font-medium text-sm transition-all duration-300 backdrop-blur-sm border ${
 													event.available_seats > 0
-														? 'bg-green-400 text-white hover:bg-white/30 border-white/30'
+														? 'bg-green-400 text-white hover:bg-orange-400 border-white/30'
 														: 'bg-white/10 text-white/50 cursor-not-allowed border-white/20'
 												}`}
 												disabled={event.available_seats === 0}
