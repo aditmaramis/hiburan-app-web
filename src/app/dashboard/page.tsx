@@ -263,12 +263,7 @@ export default function DashboardPage() {
 							>
 								Profile
 							</button>
-							<button
-								className="px-3 py-1.5 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm rounded-lg transition-all duration-200 font-medium"
-								onClick={() => router.push('/dashboard/create-event')}
-							>
-								+ Create Event
-							</button>
+							
 							<button
 								className="px-3 py-1.5 bg-gray-700 hover:bg-red-600 text-white text-sm rounded-lg transition-all duration-200 border border-gray-600 hover:border-red-500"
 								onClick={handleLogout}

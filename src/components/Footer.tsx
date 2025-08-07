@@ -17,7 +17,7 @@ export default function Footer() {
 								<span className="text-white font-bold text-sm">H</span>
 							</div>
 							<span className="bg-gradient-to-r from-white via-orange-200 to-orange-500 bg-clip-text text-transparent">
-								HiburanApp
+								Hiburan
 							</span>
 						</div>
 						<p className="text-white/70 mb-4">

@@ -151,7 +151,7 @@ export default function EventsPage() {
 
 										<button
 											onClick={handleSearch}
-											className="w-full bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm border border-white/20 hover:border-white/30"
+											className="w-full bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 backdrop-blur-sm border border-white/20 hover:border-white/30"
 										>
 											Search Events
 										</button>

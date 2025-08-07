@@ -38,13 +38,12 @@ export default function Navbar() {
 				className="flex items-center gap-2 text-xl font-bold text-white hover:text-white/90 transition-colors duration-300"
 			>
 				<Image
-					src="/logo.svg"
+					src="/logo hiburan.png"
 					alt="Logo"
-					width={32}
-					height={32}
-					className="h-8 w-8 object-contain filter brightness-0 invert"
+					width={100}
+					height={100}
+					className="object-contain filter brightness-0 invert"
 				/>
-				HiburanApp
 			</Link>
 
 			{/* Auth Buttons */}
