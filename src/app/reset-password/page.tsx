@@ -5,22 +5,30 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from '@/lib/axios';
 
+function SearchParamsSuspense({
+	setToken,
+}: {
+	setToken: (token: string) => void;
+}) {
+	const searchParams = useSearchParams();
+	useEffect(() => {
+		setToken(searchParams.get('token') || '');
+	}, [searchParams, setToken]);
+	return null;
+}
+
 export default function ResetPasswordPage() {
-	const router = useRouter();
-	// Wrap useSearchParams in Suspense boundary for Next.js App Router compatibility
 	const [token, setToken] = useState('');
+	return (
+		<Suspense>
+			<SearchParamsSuspense setToken={setToken} />
+			<ResetPasswordPageContent token={token} />
+		</Suspense>
+	);
+}
 
-	// Suspense wrapper for useSearchParams
-	// This ensures compatibility with Next.js deployment and avoids CSR bailout errors
-	// See: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
-	const SearchParamsSuspense = () => {
-		const searchParams = useSearchParams();
-		useEffect(() => {
-			setToken(searchParams.get('token') || '');
-		}, [searchParams]);
-		return null;
-	};
-
+function ResetPasswordPageContent({ token }: { token: string }) {
+	const router = useRouter();
 	const [newPassword, setNewPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [message, setMessage] = useState('');
@@ -68,10 +76,6 @@ export default function ResetPasswordPage() {
 
 	return (
 		<div className="min-h-screen flex items-center justify-center relative">
-			{/* Suspense boundary for useSearchParams */}
-			<Suspense>
-				<SearchParamsSuspense />
-			</Suspense>
 			{/* Full screen background image - fixed positioning */}
 			<div className="fixed inset-0 z-0">
 				<Image
