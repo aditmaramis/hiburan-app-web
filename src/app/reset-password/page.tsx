@@ -1,15 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from '@/lib/axios';
 
-export default function ResetPasswordPage() {
-	const router = useRouter();
+function SearchParamsSuspense({
+	setToken,
+}: {
+	setToken: (token: string) => void;
+}) {
 	const searchParams = useSearchParams();
-	const token = searchParams.get('token') || '';
+	useEffect(() => {
+		setToken(searchParams.get('token') || '');
+	}, [searchParams, setToken]);
+	return null;
+}
 
+export default function ResetPasswordPage() {
+	const [token, setToken] = useState('');
+	return (
+		<Suspense>
+			<SearchParamsSuspense setToken={setToken} />
+			<ResetPasswordPageContent token={token} />
+		</Suspense>
+	);
+}
+
+function ResetPasswordPageContent({ token }: { token: string }) {
+	const router = useRouter();
 	const [newPassword, setNewPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [message, setMessage] = useState('');
