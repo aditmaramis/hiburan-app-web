@@ -124,7 +124,7 @@ export default function DashboardPage() {
 				};
 				if (axiosError.response?.status === 401) {
 					setError('Authentication failed. Please log in again.');
-					router.push('/auth/login');
+					router.push('/login');
 				} else {
 					setError(
 						axiosError.response?.data?.message ||

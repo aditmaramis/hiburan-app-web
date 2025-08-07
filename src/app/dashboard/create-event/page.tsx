@@ -27,6 +27,7 @@ interface EventFormData {
 	date: string;
 	time: string;
 	location: string;
+	city: string;
 	price: number;
 	currency: Currency;
 	totalSeats: number;
@@ -40,6 +41,7 @@ interface EventFormErrors {
 	date?: string;
 	time?: string;
 	location?: string;
+	city?: string;
 	price?: string;
 	totalSeats?: string;
 	category?: string;
@@ -54,6 +56,7 @@ export default function CreateEventPage() {
 		date: '',
 		time: '',
 		location: '',
+		city: '',
 		price: 0,
 		currency: 'IDR',
 		totalSeats: 0,
@@ -78,6 +81,8 @@ export default function CreateEventPage() {
 		'Health',
 		'Other',
 	];
+
+	const cities = ['Jakarta', 'Bogor', 'Tangerang', 'Surabaya'];
 
 	// Check authentication
 	useEffect(() => {
@@ -125,7 +130,11 @@ export default function CreateEventPage() {
 		}
 
 		if (!formData.location.trim()) {
-			newErrors.location = 'Location is required';
+			newErrors.location = 'Venue is required';
+		}
+
+		if (!formData.city) {
+			newErrors.city = 'City is required';
 		}
 
 		if (!formData.category) {
@@ -183,7 +192,7 @@ export default function CreateEventPage() {
 			const token = localStorage.getItem('token');
 			if (!token) {
 				setError('Authentication required. Please log in again.');
-				router.push('/auth/login');
+				router.push('/login');
 				return;
 			}
 
@@ -196,6 +205,7 @@ export default function CreateEventPage() {
 					date: formData.date,
 					time: formData.time,
 					location: formData.location,
+					city: formData.city,
 					price: formData.price,
 					currency: formData.currency,
 					total_seats: formData.totalSeats,
@@ -220,6 +230,7 @@ export default function CreateEventPage() {
 				date: '',
 				time: '',
 				location: '',
+				city: '',
 				price: 0,
 				currency: 'IDR',
 				totalSeats: 0,
@@ -239,7 +250,7 @@ export default function CreateEventPage() {
 				};
 				if (axiosError.response?.status === 401) {
 					setError('Authentication failed. Please log in again.');
-					router.push('/auth/login');
+					router.push('/login');
 				} else {
 					setError(
 						axiosError.response?.data?.message || 'Failed to create event'
@@ -476,27 +487,61 @@ export default function CreateEventPage() {
 							<h2 className="text-lg font-semibold mb-4 text-orange-500">
 								Location
 							</h2>
-							<div>
-								<Label
-									htmlFor="location"
-									className="text-gray-300"
-								>
-									Venue *
-								</Label>
-								<Input
-									id="location"
-									name="location"
-									type="text"
-									placeholder="Enter venue name and address"
-									value={formData.location}
-									onChange={handleInputChange}
-									className={`bg-[#18181c] text-gray-200 border ${
-										errors.location ? 'border-red-500' : 'border-gray-700'
-									} focus:ring-orange-500`}
-								/>
-								{errors.location && (
-									<p className="text-red-500 text-sm mt-1">{errors.location}</p>
-								)}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<div>
+									<Label
+										htmlFor="location"
+										className="text-gray-300"
+									>
+										Venue *
+									</Label>
+									<Input
+										id="location"
+										name="location"
+										type="text"
+										placeholder="Enter venue name and address"
+										value={formData.location}
+										onChange={handleInputChange}
+										className={`bg-[#18181c] text-gray-200 border ${
+											errors.location ? 'border-red-500' : 'border-gray-700'
+										} focus:ring-orange-500`}
+									/>
+									{errors.location && (
+										<p className="text-red-500 text-sm mt-1">
+											{errors.location}
+										</p>
+									)}
+								</div>
+								<div>
+									<Label
+										htmlFor="city"
+										className="text-gray-300"
+									>
+										City *
+									</Label>
+									<select
+										id="city"
+										name="city"
+										value={formData.city}
+										onChange={handleInputChange}
+										className={`w-full px-3 py-2 bg-[#18181c] text-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+											errors.city ? 'border-red-500' : 'border-gray-700'
+										}`}
+									>
+										<option value="">Select a city</option>
+										{cities.map((city) => (
+											<option
+												key={city}
+												value={city}
+											>
+												{city}
+											</option>
+										))}
+									</select>
+									{errors.city && (
+										<p className="text-red-500 text-sm mt-1">{errors.city}</p>
+									)}
+								</div>
 							</div>
 						</div>
 

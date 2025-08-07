@@ -20,10 +20,12 @@ function SearchParamsSuspense({
 export default function ResetPasswordPage() {
 	const [token, setToken] = useState('');
 	return (
-		<Suspense>
-			<SearchParamsSuspense setToken={setToken} />
+		<>
+			<Suspense fallback={null}>
+				<SearchParamsSuspense setToken={setToken} />
+			</Suspense>
 			<ResetPasswordPageContent token={token} />
-		</Suspense>
+		</>
 	);
 }
 
