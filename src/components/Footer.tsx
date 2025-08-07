@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Footer() {
 	return (
-		<footer className="bg-gradient-to-t from-slate-900 to-transparent backdrop-blur-md border-t border-white/20 text-white relative overflow-hidden">
+		<footer className="bg-gradient-to-t from-slate-900 to-transparent backdrop-blur-md text-white relative overflow-hidden">
 			{/* Animated Background Elements */}
 			<div className="absolute inset-0 overflow-hidden">
 				<div className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
