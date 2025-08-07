@@ -316,7 +316,7 @@ export default function Home() {
 							<div className="text-center mt-8">
 								<Link
 									href="/events"
-									className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm border border-white/20 hover:border-white/30"
+									className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 backdrop-blur-sm border border-white/20 hover:border-white/30"
 								>
 									<span>View All Events</span>
 									<svg
@@ -343,7 +343,7 @@ export default function Home() {
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 							<div className="text-center mb-12">
 								<h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
-									Why Choose HiburanApp?
+									Why Choose Hiburan?
 								</h2>
 							</div>
 

@@ -255,7 +255,7 @@ export default function EventListHome({
 						return (
 							<div
 								key={event.id}
-								className="glass-dark rounded-xl overflow-hidden hover:bg-white/20 transition-all duration-300 border border-white/20 group"
+								className="glass-dark rounded-xl overflow-hidden hover:bg-white/20 transition-all duration-300 border border-white/20 group flex flex-col h-full"
 							>
 								{/* Event Image */}
 								<div className="h-48 bg-white/10 relative overflow-hidden">
@@ -294,7 +294,7 @@ export default function EventListHome({
 								</div>
 
 								{/* Event Details */}
-								<div className="p-4">
+								<div className="p-4 flex flex-col flex-1">
 									<div className="flex justify-between items-start mb-2">
 										<span
 											className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize backdrop-blur-sm border ${getCategoryColors(
@@ -375,18 +375,20 @@ export default function EventListHome({
 									</div>
 
 									{/* Book Now Button */}
-									<Link href={`/events/${event.id}`}>
-										<button
-											className={`w-full py-1.5 px-3 rounded-lg font-medium text-sm transition-all duration-300 backdrop-blur-sm border ${
-												event.available_seats > 0
-													? 'bg-white/20 text-white hover:bg-white/30 border-white/30'
-													: 'bg-white/10 text-white/50 cursor-not-allowed border-white/20'
-											}`}
-											disabled={event.available_seats === 0}
-										>
-											{event.available_seats > 0 ? 'Book Now' : 'Sold Out'}
-										</button>
-									</Link>
+									<div className="mt-auto">
+										<Link href={`/events/${event.id}`}>
+											<button
+												className={`w-full py-1.5 px-3 rounded-lg font-medium text-sm transition-all duration-300 backdrop-blur-sm border ${
+													event.available_seats > 0
+														? 'bg-green-400 text-white hover:bg-white/30 border-white/30'
+														: 'bg-white/10 text-white/50 cursor-not-allowed border-white/20'
+												}`}
+												disabled={event.available_seats === 0}
+											>
+												{event.available_seats > 0 ? 'Book Now' : 'Sold Out'}
+											</button>
+										</Link>
+									</div>
 								</div>
 							</div>
 						);
