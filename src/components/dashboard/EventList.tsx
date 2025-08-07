@@ -172,18 +172,19 @@ export default function EventList({
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 				<div>
-					<h2 className="text-2xl font-bold text-gray-900">My Events</h2>
-					<p className="text-gray-600">{events.length} total events</p>
+					<h2 className="text-2xl font-bold text-white">My Events</h2>
+					<p className="text-orange-400">{events.length} total events</p>
 				</div>
 				<div className="flex gap-2">
 					<Button
-						variant="outline"
+						className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-all duration-200 border border-gray-600 hover:border-orange-500/50 font-medium"
 						onClick={handleRefresh}
 						disabled={isRefreshing}
 					>
 						{isRefreshing ? 'Refreshing...' : 'Refresh'}
 					</Button>
 					<Button
+						className="px-4 py-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm rounded-lg transition-all duration-200 font-medium"
 						onClick={() => (window.location.href = '/dashboard/create-event')}
 					>
 						+ Create Event

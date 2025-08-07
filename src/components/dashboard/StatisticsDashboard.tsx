@@ -249,10 +249,10 @@ export default function StatisticsDashboard({
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
 				<div>
-					<h1 className="text-2xl font-bold text-gray-900">
+					<h1 className="text-2xl font-bold text-orange-400">
 						Analytics Dashboard
 					</h1>
-					<p className="text-gray-600">
+					<p className="text-white">
 						Track your event performance and revenue
 					</p>
 				</div>
@@ -268,6 +268,7 @@ export default function StatisticsDashboard({
 						<option value="365">Last year</option>
 					</select>
 					<Button
+						className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-all duration-200 border border-gray-600 hover:border-orange-500/50 font-medium"
 						variant="outline"
 						onClick={fetchStatistics}
 					>

@@ -188,9 +188,22 @@ export default function EventDetailsPage() {
 	if (loading) {
 		return (
 			<>
+				{/* Fixed Concert Background for entire page */}
+				<div className="fixed inset-0 z-0">
+					<Image
+						src="/concert.jpg"
+						alt="Concert Background"
+						fill
+						className="object-cover blur-sm"
+						priority
+					/>
+					{/* Dark overlay */}
+					<div className="absolute inset-0 bg-black/30"></div>
+				</div>
+
 				<Navbar />
-				<div className="min-h-screen flex items-center justify-center">
-					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+				<div className="min-h-screen relative z-10 flex items-center justify-center">
+					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
 				</div>
 				<Footer />
 			</>
@@ -200,15 +213,28 @@ export default function EventDetailsPage() {
 	if (error || !event) {
 		return (
 			<>
+				{/* Fixed Concert Background for entire page */}
+				<div className="fixed inset-0 z-0">
+					<Image
+						src="/concert.jpg"
+						alt="Concert Background"
+						fill
+						className="object-cover blur-sm"
+						priority
+					/>
+					{/* Dark overlay */}
+					<div className="absolute inset-0 bg-black/30"></div>
+				</div>
+
 				<Navbar />
-				<div className="min-h-screen flex items-center justify-center">
+				<div className="min-h-screen relative z-10 flex items-center justify-center">
 					<div className="text-center">
-						<h1 className="text-2xl font-bold text-gray-900 mb-4">
+						<h1 className="text-2xl font-bold text-white mb-4">
 							{error || 'Event not found'}
 						</h1>
 						<button
 							onClick={() => router.push('/')}
-							className="bg-primary text-white px-6 py-2 rounded hover:bg-primary/90 transition"
+							className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded hover:from-orange-600 hover:to-red-600 transition"
 						>
 							Go Back Home
 						</button>
@@ -223,37 +249,56 @@ export default function EventDetailsPage() {
 
 	return (
 		<>
+			{/* Fixed Concert Background for entire page */}
+			<div className="fixed inset-0 z-0">
+				<Image
+					src="/concert.jpg"
+					alt="Concert Background"
+					fill
+					className="object-cover blur-sm"
+					priority
+				/>
+				{/* Dark overlay */}
+				<div className="absolute inset-0 bg-black/30"></div>
+			</div>
+
 			<Navbar />
-			<main className="min-h-screen bg-gray-50">
+			<main className="min-h-screen relative z-10">
+				{/* Animated Background Elements */}
+				<div className="absolute inset-0 overflow-hidden">
+					<div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+					<div className="absolute top-40 -left-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+					<div className="absolute bottom-40 right-1/4 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+				</div>
 				{/* Hero Section */}
-				<div className="relative h-96 bg-gray-900">
+				<div className="relative h-96 bg-gradient-to-r from-slate-900/80 to-purple-900/80 backdrop-blur-md">
 					{event.image ? (
 						<Image
 							src={event.image}
 							alt={event.title}
 							fill
-							className="object-cover opacity-70"
+							className="object-cover opacity-30 blur-sm"
 							priority
 						/>
 					) : (
-						<div className="w-full h-full bg-gradient-to-r from-primary to-blue-600"></div>
+						<div className="w-full h-full bg-gradient-to-r from-orange-500/30 to-purple-600/30"></div>
 					)}
-					<div className="absolute inset-0 bg-black bg-opacity-50 flex items-center">
+					<div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60 flex items-center">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
 							<div className="max-w-3xl">
 								<div className="flex items-center gap-4 mb-4">
-									<span className="inline-block bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium capitalize">
+									<span className="inline-block bg-gradient-to-r from-orange-500 to-red-500 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg">
 										{event.category}
 									</span>
 									{status && (
 										<span
-											className={`${status.color} text-white px-3 py-1 rounded-full text-sm font-medium`}
+											className={`${status.color} backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg`}
 										>
 											{status.label}
 										</span>
 									)}
 								</div>
-								<h1 className="text-4xl md:text-5xl font-bold mb-4">
+								<h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-white via-orange-200 to-orange-500 bg-clip-text text-transparent">
 									{event.title}
 								</h1>
 								<div className="flex flex-wrap items-center gap-6 text-lg">
@@ -302,13 +347,15 @@ export default function EventDetailsPage() {
 				</div>
 
 				{/* Content Section */}
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+				<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 					<div className="grid lg:grid-cols-3 gap-8">
 						{/* Main Content */}
 						<div className="lg:col-span-2">
-							<div className="bg-white rounded-lg shadow-md p-8">
-								<h2 className="text-2xl font-bold mb-6">About This Event</h2>
-								<div className="prose max-w-none text-gray-700 leading-relaxed">
+							<div className="bg-black/20 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20 h-full flex flex-col">
+								<h2 className="text-2xl font-bold mb-6 text-white">
+									About This Event
+								</h2>
+								<div className="prose max-w-none text-gray-200 leading-relaxed flex-grow">
 									{event.description &&
 										event.description.split('. ').map((sentence, index) => (
 											<p
@@ -320,42 +367,42 @@ export default function EventDetailsPage() {
 											</p>
 										))}
 									{!event.description && (
-										<p className="text-gray-500 italic">
+										<p className="text-gray-400 italic">
 											No description available.
 										</p>
 									)}
 								</div>
 
 								{/* Event Details */}
-								<div className="mt-8 border-t pt-8">
-									<h3 className="text-xl font-bold mb-4">Event Details</h3>
+								<div className="mt-8 border-t border-white/20 pt-8">
+									<h3 className="text-xl font-bold mb-4 text-white">
+										Event Details
+									</h3>
 									<div className="grid md:grid-cols-2 gap-6">
-										<div>
-											<h4 className="font-semibold text-gray-900 mb-2">
+										<div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-xl p-4 border border-orange-500/30">
+											<h4 className="font-semibold text-orange-200 mb-2">
 												Date & Time
 											</h4>
-											<p className="text-gray-600">{formatDate(event.date)}</p>
-											<p className="text-gray-600">{event.time}</p>
+											<p className="text-white">{formatDate(event.date)}</p>
+											<p className="text-white">{event.time}</p>
 										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900 mb-2">
+										<div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl p-4 border border-purple-500/30">
+											<h4 className="font-semibold text-purple-200 mb-2">
 												Location
 											</h4>
-											<p className="text-gray-600">{event.location}</p>
+											<p className="text-white">{event.location}</p>
 										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900 mb-2">
+										<div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-xl p-4 border border-orange-500/30">
+											<h4 className="font-semibold text-orange-200 mb-2">
 												Category
 											</h4>
-											<p className="text-gray-600 capitalize">
-												{event.category}
-											</p>
+											<p className="text-white capitalize">{event.category}</p>
 										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900 mb-2">
+										<div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl p-4 border border-purple-500/30">
+											<h4 className="font-semibold text-purple-200 mb-2">
 												Availability
 											</h4>
-											<p className="text-gray-600">
+											<p className="text-white">
 												{event.available_seats} of {event.total_seats} seats
 												available
 											</p>
@@ -367,76 +414,79 @@ export default function EventDetailsPage() {
 
 						{/* Booking Sidebar */}
 						<div className="lg:col-span-1">
-							<div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+							<div className="bg-black/20 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/20 h-full flex flex-col">
 								<div className="text-center mb-6">
-									<div className="text-3xl font-bold text-primary mb-2">
+									<div className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
 										{formatCurrency(event.price)}
 									</div>
-									<p className="text-gray-600">per ticket</p>
+									<p className="text-gray-300">per ticket</p>
 								</div>
 
-								{status?.available ? (
-									<>
-										<div className="mb-4">
-											<label className="block text-sm font-medium text-gray-700 mb-2">
-												Number of Tickets
-											</label>
-											<select
-												value={ticketQuantity}
-												onChange={(e) =>
-													setTicketQuantity(parseInt(e.target.value))
-												}
-												className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-											>
-												{Array.from(
-													{ length: Math.min(10, event.available_seats) },
-													(_, i) => (
-														<option
-															key={i + 1}
-															value={i + 1}
-														>
-															{i + 1} ticket{i > 0 ? 's' : ''}
-														</option>
-													)
-												)}
-											</select>
-										</div>
-
-										<div className="border-t pt-4 mb-6">
-											<div className="flex justify-between items-center text-lg font-semibold">
-												<span>Total:</span>
-												<span className="text-primary">
-													{formatCurrency(event.price * ticketQuantity)}
-												</span>
+								<div className="flex-grow">
+									{status?.available ? (
+										<>
+											<div className="mb-4">
+												<label className="block text-sm font-medium text-white mb-2">
+													Number of Tickets
+												</label>
+												<select
+													value={ticketQuantity}
+													onChange={(e) =>
+														setTicketQuantity(parseInt(e.target.value))
+													}
+													className="w-full bg-black/20 border border-white/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 backdrop-blur-md"
+												>
+													{Array.from(
+														{ length: Math.min(10, event.available_seats) },
+														(_, i) => (
+															<option
+																key={i + 1}
+																value={i + 1}
+																className="bg-slate-800 text-white"
+															>
+																{i + 1} ticket{i > 0 ? 's' : ''}
+															</option>
+														)
+													)}
+												</select>
 											</div>
-										</div>
 
-										<button
-											onClick={handleBookTicket}
-											className="w-full bg-primary text-white py-3 px-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition"
-										>
-											Book Now
-										</button>
-									</>
-								) : (
-									<div className="text-center py-4">
-										<div
-											className={`${status?.color} text-white px-4 py-2 rounded-full text-sm font-medium mb-4 inline-block`}
-										>
-											{status?.label}
-										</div>
-										<p className="text-gray-600">
-											{status?.label === 'Sold Out'
-												? 'This event is completely sold out.'
-												: 'This event has already passed.'}
-										</p>
-									</div>
-								)}
+											<div className="border-t border-white/20 pt-4 mb-6">
+												<div className="flex justify-between items-center text-lg font-semibold">
+													<span className="text-white">Total:</span>
+													<span className="text-orange-400">
+														{formatCurrency(event.price * ticketQuantity)}
+													</span>
+												</div>
+											</div>
 
-								<div className="mt-6 pt-6 border-t">
-									<div className="flex items-center text-sm text-gray-600">
+											<button
+												onClick={handleBookTicket}
+												className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-4 rounded-lg font-semibold text-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+											>
+												🎫 Book Now
+											</button>
+										</>
+									) : (
+										<div className="text-center py-4">
+											<div
+												className={`${status?.color} backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-4 inline-block`}
+											>
+												{status?.label}
+											</div>
+											<p className="text-gray-300">
+												{status?.label === 'Sold Out'
+													? 'This event is completely sold out.'
+													: 'This event has already passed.'}
+											</p>
+										</div>
+									)}
+								</div>
+
+								<div className="mt-6 pt-6 border-t border-white/20">
+									<div className="flex items-center text-sm text-gray-300">
 										<svg
-											className="w-4 h-4 mr-2"
+											className="w-4 h-4 mr-2 text-green-400"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -450,9 +500,9 @@ export default function EventDetailsPage() {
 										</svg>
 										Secure payment processing
 									</div>
-									<div className="flex items-center text-sm text-gray-600 mt-2">
+									<div className="flex items-center text-sm text-gray-300 mt-2">
 										<svg
-											className="w-4 h-4 mr-2"
+											className="w-4 h-4 mr-2 text-blue-400"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -474,30 +524,34 @@ export default function EventDetailsPage() {
 
 				{/* Booking Modal */}
 				{showBookingModal && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-						<div className="bg-white rounded-lg max-w-md w-full">
+					<div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+						<div className="bg-black/20 backdrop-blur-md rounded-2xl max-w-md w-full border border-white/20 shadow-2xl">
 							<div className="p-6">
-								<h3 className="text-xl font-bold mb-4">Confirm Booking</h3>
+								<h3 className="text-xl font-bold mb-4 text-white">
+									Confirm Booking
+								</h3>
 								<div className="space-y-3 mb-6">
 									<div className="flex justify-between">
-										<span>Event:</span>
-										<span className="font-medium">{event.title}</span>
+										<span className="text-gray-300">Event:</span>
+										<span className="font-medium text-white">
+											{event.title}
+										</span>
 									</div>
 									<div className="flex justify-between">
-										<span>Date:</span>
-										<span>{formatDate(event.date)}</span>
+										<span className="text-gray-300">Date:</span>
+										<span className="text-white">{formatDate(event.date)}</span>
 									</div>
 									<div className="flex justify-between">
-										<span>Time:</span>
-										<span>{event.time}</span>
+										<span className="text-gray-300">Time:</span>
+										<span className="text-white">{event.time}</span>
 									</div>
 									<div className="flex justify-between">
-										<span>Tickets:</span>
-										<span>{ticketQuantity}</span>
+										<span className="text-gray-300">Tickets:</span>
+										<span className="text-white">{ticketQuantity}</span>
 									</div>
-									<div className="flex justify-between border-t pt-3 font-semibold">
-										<span>Total:</span>
-										<span className="text-primary">
+									<div className="flex justify-between border-t border-white/20 pt-3 font-semibold">
+										<span className="text-white">Total:</span>
+										<span className="text-orange-400">
 											{formatCurrency(event.price * ticketQuantity)}
 										</span>
 									</div>
@@ -505,13 +559,13 @@ export default function EventDetailsPage() {
 								<div className="flex gap-4">
 									<button
 										onClick={confirmBooking}
-										className="flex-1 bg-primary text-white py-2 px-4 rounded hover:bg-primary/90 transition"
+										className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 px-4 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-semibold"
 									>
 										Confirm Booking
 									</button>
 									<button
 										onClick={() => setShowBookingModal(false)}
-										className="flex-1 border border-gray-300 py-2 px-4 rounded hover:bg-gray-50 transition"
+										className="flex-1 border border-white/30 bg-black/20 backdrop-blur-md text-white py-2 px-4 rounded-lg hover:bg-black/30 transition-all duration-300"
 									>
 										Cancel
 									</button>
@@ -521,7 +575,9 @@ export default function EventDetailsPage() {
 					</div>
 				)}
 			</main>
-			<Footer />
+			<div className="relative z-10">
+				<Footer />
+			</div>
 		</>
 	);
 }

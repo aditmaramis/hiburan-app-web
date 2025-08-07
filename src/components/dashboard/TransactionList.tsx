@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import TransactionStatusBadge, {
+	TransactionStatus,
+} from '@/components/ui/transaction-status-badge';
 import Image from 'next/image';
 
 interface Transaction {
@@ -115,22 +118,6 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 		}
 	};
 
-	const getStatusColor = (status: string) => {
-		switch (status.toLowerCase()) {
-			case 'pending':
-				return 'text-yellow-600 bg-yellow-100';
-			case 'waiting_for_admin_confirmation':
-				return 'text-blue-600 bg-blue-100';
-			case 'accepted':
-			case 'confirmed':
-				return 'text-green-600 bg-green-100';
-			case 'rejected':
-				return 'text-red-600 bg-red-100';
-			default:
-				return 'text-gray-600 bg-gray-100';
-		}
-	};
-
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('id-ID', {
 			style: 'currency',
@@ -186,7 +173,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 					{transactions.map((transaction) => (
 						<Card
 							key={transaction.id}
-							className="p-6"
+							className="p-6 text-orange-400"
 						>
 							<div className="flex justify-between items-start mb-4">
 								<div>
@@ -194,51 +181,44 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 										{transaction.bookings?.events?.title ||
 											'Event Title Unavailable'}
 									</h3>
-									<p className="text-gray-600">Transaction #{transaction.id}</p>
+									<p className="text-white">Transaction #{transaction.id}</p>
 								</div>
-								<span
-									className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-										transaction.status
-									)}`}
-								>
-									{transaction.status === 'waiting_for_admin_confirmation'
-										? 'Waiting for Admin Confirmation'
-										: transaction.status.charAt(0).toUpperCase() +
-										  transaction.status.slice(1)}
-								</span>
+								<TransactionStatusBadge
+									status={transaction.status as TransactionStatus}
+								/>
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 								<div>
-									<h4 className="font-medium text-gray-900 mb-2">
+									<h4 className="font-medium text-orange-400 mb-2">
 										Customer Details
 									</h4>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Name:</strong>{' '}
 										{transaction.bookings?.users?.name || 'N/A'}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Email:</strong>{' '}
 										{transaction.bookings?.users?.email || 'N/A'}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Quantity:</strong>{' '}
 										{transaction.bookings?.quantity || 0} ticket(s)
 									</p>
 								</div>
 
 								<div>
-									<h4 className="font-medium text-gray-900 mb-2">
+									<h4 className="font-medium text-orange-400 mb-2">
 										Payment Details
 									</h4>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Amount:</strong>{' '}
 										{formatCurrency(Number(transaction.amount))}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Method:</strong> {transaction.payment_method}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Date:</strong>{' '}
 										{formatDate(transaction.payment_date)}
 									</p>
@@ -246,20 +226,20 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 							</div>
 
 							<div className="mb-4">
-								<h4 className="font-medium text-gray-900 mb-2">
+								<h4 className="font-medium text-orange-400 mb-2">
 									Event Details
 								</h4>
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-white">
 									<strong>Date:</strong>{' '}
 									{transaction.bookings?.events?.date
 										? formatDate(transaction.bookings.events.date)
 										: 'Date TBA'}
 								</p>
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-white">
 									<strong>Time:</strong>{' '}
 									{transaction.bookings?.events?.time || 'Time TBA'}
 								</p>
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-white">
 									<strong>Location:</strong>{' '}
 									{transaction.bookings?.events?.location || 'Location TBA'}
 								</p>
@@ -267,7 +247,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 
 							{transaction.payment_proof && (
 								<div className="mb-4">
-									<h4 className="font-medium text-gray-900 mb-2">
+									<h4 className="font-medium text-orange-400 mb-2">
 										Payment Proof
 									</h4>
 									<div
@@ -317,7 +297,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 										onClick={() =>
 											handleStatusUpdate(transaction.id, 'accepted')
 										}
-										className="bg-green-600 hover:bg-green-700"
+										className="text-white bg-green-600 hover:bg-green-700"
 									>
 										Accept
 									</Button>

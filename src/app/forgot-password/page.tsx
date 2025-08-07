@@ -7,69 +7,52 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
 	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
+	const [message, setMessage] = useState('');
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [rememberMe, setRememberMe] = useState(false);
+	const [isSubmitted, setIsSubmitted] = useState(false);
 	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError('');
+		setMessage('');
 		setIsLoading(true);
 
 		try {
-			const response = await api.post('/auth/login', {
+			const response = await api.post('/profile/reset-password-request', {
 				email,
-				password,
 			});
 
-			const { token, user } = response.data;
-
-			if (token) {
-				// Store token in localStorage (consider httpOnly cookies for production)
-				localStorage.setItem('token', token);
-
-				// Store user info if available
-				if (user) {
-					localStorage.setItem('user', JSON.stringify(user));
-				}
-
-				// Set default authorization header for future requests
-				api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-				// Redirect based on user role
-				if (user.role === 'organizer') {
-					router.push('/dashboard');
-				} else if (user.role === 'customer') {
-					router.push('/customer-dashboard');
-				} else {
-					router.push('/profile'); // fallback
-				}
-			} else {
-				setError('Authentication failed. No token received.');
+			if (response.data.success) {
+				setMessage(
+					'If an account with this email exists, you will receive password reset instructions shortly.'
+				);
+				setIsSubmitted(true);
 			}
 		} catch (error: unknown) {
 			// Handle different types of errors
 			if (error && typeof error === 'object' && 'response' in error) {
-				// Server responded with error status
 				const axiosError = error as {
 					response: { data?: { message?: string } };
 				};
-				const message = axiosError.response.data?.message || 'Login failed';
+				const message =
+					axiosError.response.data?.message || 'Password reset request failed';
 				setError(message);
 			} else if (error && typeof error === 'object' && 'request' in error) {
-				// Request was made but no response received
 				setError('Network error. Please check your connection.');
 			} else {
-				// Something else happened
 				setError('An unexpected error occurred.');
 			}
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleBackToLogin = () => {
+		router.push('/login');
 	};
 
 	return (
@@ -78,7 +61,7 @@ export default function LoginPage() {
 			<div className="absolute inset-0">
 				<Image
 					src="/concert.jpg"
-					alt="Login background"
+					alt="Forgot password background"
 					fill
 					className="object-cover filter brightness-100"
 					priority
@@ -131,103 +114,109 @@ export default function LoginPage() {
 					{/* Header */}
 					<div className="grid auto-rows-min items-start gap-2 px-0">
 						<div className="leading-none font-bold text-2xl text-white">
-							Login
+							Reset Password
 						</div>
 						<div className="text-white/80 text-sm font-medium">
-							Sign in to your account to continue
+							{isSubmitted
+								? 'Check your email for reset instructions'
+								: 'Enter your email to receive reset instructions'}
 						</div>
 					</div>
+
 					{/* Content */}
 					<div className="px-0">
-						<form
-							onSubmit={handleSubmit}
-							className="flex flex-col gap-6"
-						>
-							<div className="grid gap-2">
-								<Label
-									htmlFor="email"
-									className="text-white font-medium"
-								>
-									Email
-								</Label>
-								<Input
-									id="email"
-									type="email"
-									placeholder="user@email.com"
-									required
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									className="glass text-white placeholder:text-white/60 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30"
-								/>
-							</div>
-							<div className="grid gap-2">
-								<div className="flex items-center w-full justify-between">
+						{!isSubmitted ? (
+							<form
+								onSubmit={handleSubmit}
+								className="flex flex-col gap-6"
+							>
+								<div className="grid gap-2">
 									<Label
-										htmlFor="password"
+										htmlFor="email"
 										className="text-white font-medium"
 									>
-										Password
+										Email Address
 									</Label>
-									<button
-										type="button"
-										onClick={() => router.push('/forgot-password')}
-										className="inline-block text-sm underline-offset-4 hover:underline text-white/80 hover:text-white transition-colors duration-300"
-									>
-										Forgot your password?
-									</button>
+									<Input
+										id="email"
+										type="email"
+										placeholder="user@email.com"
+										required
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
+										className="glass text-white placeholder:text-white/60 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30"
+									/>
 								</div>
-								<Input
-									id="password"
-									type="password"
-									required
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									className="glass text-white placeholder:text-white/60 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30"
-								/>
-							</div>
 
-							{/* Remember Me checkbox */}
-							<div className="flex items-center space-x-2">
-								<input
-									id="remember"
-									type="checkbox"
-									checked={rememberMe}
-									onChange={(e) => setRememberMe(e.target.checked)}
-									className="w-4 h-4 text-orange-600 bg-transparent border-orange-400/30 rounded focus:ring-orange-500 focus:ring-2"
-								/>
-								<Label
-									htmlFor="remember"
-									className="text-white/80 text-sm font-medium cursor-pointer"
+								{error && (
+									<div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+										{error}
+									</div>
+								)}
+
+								{message && (
+									<div className="text-green-400 text-sm bg-green-500/10 p-3 rounded-lg border border-green-500/20">
+										{message}
+									</div>
+								)}
+
+								{/* Submit Button */}
+								<Button
+									type="submit"
+									className="w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 backdrop-blur-sm"
+									disabled={isLoading}
 								>
-									Remember me
-								</Label>
-							</div>
-
-							{error && (
-								<div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
-									{error}
+									{isLoading ? 'Sending...' : 'Send Reset Link'}
+								</Button>
+							</form>
+						) : (
+							<div className="flex flex-col gap-6">
+								{/* Success message */}
+								<div className="text-green-400 text-sm bg-green-500/10 p-4 rounded-lg border border-green-500/20 text-center">
+									<div className="font-medium mb-2">Email Sent!</div>
+									<div className="text-white/80">
+										If an account with email{' '}
+										<span className="text-white font-medium">{email}</span>{' '}
+										exists, you will receive password reset instructions within
+										a few minutes.
+									</div>
 								</div>
-							)}
 
-							{/* Submit Button inside form */}
-							<Button
-								type="submit"
-								className="w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 backdrop-blur-sm"
-								disabled={isLoading}
-							>
-								{isLoading ? 'Logging in...' : 'Login'}
-							</Button>
-						</form>
+								{/* Additional instructions */}
+								<div className="text-white/60 text-xs text-center space-y-2">
+									<p>
+										• Check your spam folder if you don&apos;t see the email
+									</p>
+									<p>• The reset link will expire in 24 hours</p>
+									<p>• You can request a new link if needed</p>
+								</div>
 
-						{/* Register link */}
-						<div className="text-center mt-4">
+								{/* Action buttons */}
+								<div className="flex flex-col gap-3">
+									<Button
+										onClick={() => {
+											setIsSubmitted(false);
+											setEmail('');
+											setMessage('');
+											setError('');
+										}}
+										className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-2 rounded-xl transition-all duration-300 backdrop-blur-sm"
+									>
+										Send Another Email
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* Back to Login link */}
+						<div className="text-center mt-6">
 							<span className="text-white/80 text-sm">
-								Don&apos;t have an account?{' '}
+								Remember your password?{' '}
 								<button
-									onClick={() => router.push('/register')}
+									onClick={handleBackToLogin}
 									className="font-bold text-white hover:text-white/90 transition-colors duration-300 underline-offset-4 hover:underline"
 								>
-									Register
+									Back to Login
 								</button>
 							</span>
 						</div>

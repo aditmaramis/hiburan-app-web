@@ -1,440 +1,312 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
+import EventListHome from '../../components/EventListHome';
 import Footer from '@/components/Footer';
-
-interface Event {
-	id: number;
-	title: string;
-	description: string | null;
-	date: string;
-	time: string;
-	location: string;
-	price: number;
-	available_seats: number;
-	total_seats: number;
-	category: string;
-	image?: string | null;
-	organizer_id: number;
-	created_at: string;
-	updated_at: string;
-	organizer?: {
-		id: number;
-		name: string | null;
-		email: string;
-	};
-}
+import Image from 'next/image';
 
 export default function EventsPage() {
-	const [events, setEvents] = useState<Event[]>([]);
-	const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState('');
-	const [searchTerm, setSearchTerm] = useState('');
+	const [searchQuery, setSearchQuery] = useState('');
+	const [locationQuery, setLocationQuery] = useState('');
 	const [selectedCategory, setSelectedCategory] = useState('all');
-	const router = useRouter();
+	const [dateFilter, setDateFilter] = useState('');
+	const eventsRef = useRef<HTMLElement>(null);
 
 	const categories = [
-		{ value: 'all', label: 'All Events' },
-		{ value: 'Music', label: 'Music' },
-		{ value: 'Sports', label: 'Sports' },
-		{ value: 'Technology', label: 'Technology' },
-		{ value: 'Food', label: 'Food & Drink' },
-		{ value: 'Art', label: 'Art & Culture' },
-		{ value: 'Business', label: 'Business' },
-		{ value: 'Education', label: 'Education' },
-		{ value: 'Entertainment', label: 'Entertainment' },
-		{ value: 'Health', label: 'Health & Wellness' },
-		{ value: 'Other', label: 'Other' },
+		{
+			value: 'all',
+			label: 'All Events',
+			color: 'from-white/20 to-white/10 border-white/30',
+		},
+		{
+			value: 'Music',
+			label: 'Music',
+			color: 'from-purple-500/30 to-pink-500/20 border-purple-400/40',
+		},
+		{
+			value: 'Sports',
+			label: 'Sports',
+			color: 'from-green-500/30 to-emerald-500/20 border-green-400/40',
+		},
+		{
+			value: 'Technology',
+			label: 'Technology',
+			color: 'from-blue-500/30 to-cyan-500/20 border-blue-400/40',
+		},
+		{
+			value: 'Food & Drink',
+			label: 'Food & Drink',
+			color: 'from-orange-500/30 to-red-500/20 border-orange-400/40',
+		},
+		{
+			value: 'Art & Culture',
+			label: 'Art & Culture',
+			color: 'from-indigo-500/30 to-purple-500/20 border-indigo-400/40',
+		},
+		{
+			value: 'Business',
+			label: 'Business',
+			color: 'from-gray-500/30 to-slate-500/20 border-gray-400/40',
+		},
+		{
+			value: 'Education',
+			label: 'Education',
+			color: 'from-yellow-500/30 to-amber-500/20 border-yellow-400/40',
+		},
 	];
 
-	useEffect(() => {
-		fetchEvents();
-	}, []);
-
-	const fetchEvents = async () => {
-		try {
-			setLoading(true);
-			const response = await axios.get('http://localhost:8000/api/events');
-			const fetchedEvents =
-				response.data.events || response.data.data || response.data;
-			setEvents(fetchedEvents);
-		} catch (error) {
-			console.error('Error fetching events:', error);
-			setError('Failed to load events. Please try again later.');
-		} finally {
-			setLoading(false);
+	const handleSearch = () => {
+		// Scroll to events section
+		if (eventsRef.current) {
+			eventsRef.current.scrollIntoView({
+				behavior: 'smooth',
+				block: 'start',
+			});
 		}
 	};
 
-	const filterEvents = useCallback(() => {
-		let filtered = events;
-
-		// Filter by category
-		if (selectedCategory !== 'all') {
-			filtered = filtered.filter(
-				(event) => event.category === selectedCategory
-			);
-		}
-
-		// Filter by search term
-		if (searchTerm.trim()) {
-			const searchLower = searchTerm.toLowerCase();
-			filtered = filtered.filter(
-				(event) =>
-					event.title.toLowerCase().includes(searchLower) ||
-					(event.description &&
-						event.description.toLowerCase().includes(searchLower)) ||
-					event.location.toLowerCase().includes(searchLower)
-			);
-		}
-
-		// Sort by date (upcoming events first)
-		filtered.sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
-
-		setFilteredEvents(filtered);
-	}, [events, searchTerm, selectedCategory]);
-
-	useEffect(() => {
-		filterEvents();
-	}, [filterEvents]);
-
-	const formatDate = (dateString: string) => {
-		return new Date(dateString).toLocaleDateString('en-US', {
-			weekday: 'short',
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
+	const handleCategoryClick = (category: string) => {
+		setSelectedCategory(category);
+		setDateFilter(''); // Clear date filter when category changes
 	};
 
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat('id-ID', {
-			style: 'currency',
-			currency: 'IDR',
-		}).format(price);
+	const handleDateFilterClick = (filter: string) => {
+		setDateFilter(filter === dateFilter ? '' : filter); // Toggle filter
 	};
-
-	const getEventStatus = (event: Event) => {
-		const eventDate = new Date(event.date);
-		const now = new Date();
-		const occupancyRate =
-			((event.total_seats - event.available_seats) / event.total_seats) * 100;
-
-		if (eventDate < now)
-			return { status: 'Past', color: 'bg-gray-100 text-gray-800' };
-		if (event.available_seats === 0)
-			return { status: 'Sold Out', color: 'bg-red-100 text-red-800' };
-		if (occupancyRate >= 80)
-			return { status: 'Almost Full', color: 'bg-orange-100 text-orange-800' };
-		if (eventDate <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
-			return { status: 'This Week', color: 'bg-blue-100 text-blue-800' };
-		return { status: 'Available', color: 'bg-green-100 text-green-800' };
-	};
-
-	const handleEventClick = (eventId: number) => {
-		router.push(`/events/${eventId}`);
-	};
-
-	if (loading) {
-		return (
-			<div className="min-h-screen">
-				<Navbar />
-				<div className="min-h-screen flex items-center justify-center">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-						<div className="text-lg text-gray-600">Loading events...</div>
-					</div>
-				</div>
-				<Footer />
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="min-h-screen">
-				<Navbar />
-				<div className="min-h-screen flex items-center justify-center">
-					<div className="text-center">
-						<div className="text-red-500 text-lg mb-4">{error}</div>
-						<Button onClick={fetchEvents}>Try Again</Button>
-					</div>
-				</div>
-				<Footer />
-			</div>
-		);
-	}
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			<Navbar />
-
-			{/* Hero Section */}
-			<div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-					<h1 className="text-4xl md:text-6xl font-bold mb-4">
-						Discover Amazing Events
-					</h1>
-					<p className="text-xl md:text-2xl mb-8 opacity-90">
-						Find and book tickets for concerts, workshops, sports events, and
-						more
-					</p>
-					<div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-						<Input
-							type="text"
-							placeholder="Search events..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							className="flex-1 text-gray-900"
-						/>
-						<select
-							value={selectedCategory}
-							onChange={(e) => setSelectedCategory(e.target.value)}
-							className="px-4 py-2 rounded-md border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						>
-							{categories.map((category) => (
-								<option
-									key={category.value}
-									value={category.value}
-								>
-									{category.label}
-								</option>
-							))}
-						</select>
-					</div>
-				</div>
+		<>
+			{/* Full screen background image */}
+			<div className="fixed inset-0 z-0">
+				<Image
+					src="/concert.jpg"
+					alt="Events background"
+					fill
+					className="object-cover filter brightness-90"
+					priority
+				/>
+				{/* Dark overlay for better readability */}
+				<div className="absolute inset-0 bg-black/30" />
+				{/* Subtle glass overlay */}
+				<div className="absolute inset-0 backdrop-blur-sm bg-black/10" />
 			</div>
 
-			{/* Events Grid */}
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-				{filteredEvents.length === 0 ? (
-					<div className="text-center py-12">
-						<div className="text-gray-400 mb-4">
-							<svg
-								className="mx-auto h-24 w-24"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={1}
-									d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V13a2 2 0 012-2z"
-								/>
-							</svg>
-						</div>
-						<h3 className="text-lg font-medium text-gray-900 mb-2">
-							{searchTerm || selectedCategory !== 'all'
-								? 'No events found'
-								: 'No events available'}
-						</h3>
-						<p className="text-gray-600 mb-4">
-							{searchTerm || selectedCategory !== 'all'
-								? 'Try adjusting your search criteria or browse all categories'
-								: 'Check back later for new events'}
-						</p>
-						{(searchTerm || selectedCategory !== 'all') && (
-							<div className="space-x-4">
-								<Button
-									variant="outline"
-									onClick={() => {
-										setSearchTerm('');
-										setSelectedCategory('all');
-									}}
-								>
-									Clear Filters
-								</Button>
-							</div>
-						)}
-					</div>
-				) : (
-					<>
-						<div className="flex justify-between items-center mb-8">
-							<div>
-								<h2 className="text-2xl font-bold text-gray-900">
-									{selectedCategory === 'all'
-										? 'All Events'
-										: `${
-												categories.find((c) => c.value === selectedCategory)
-													?.label
-										  } Events`}
-								</h2>
-								<p className="text-gray-600">
-									{filteredEvents.length} event
-									{filteredEvents.length !== 1 ? 's' : ''} found
+			{/* Very light animated gradient overlay */}
+			<div className="fixed inset-0 z-10 bg-gradient-to-br from-slate-900/20 via-orange-900/10 to-amber-900/20 animate-gradient-shift" />
+
+			{/* Floating geometric elements */}
+			<div className="fixed top-10 left-10 w-16 h-16 border border-orange-400/20 rounded-full animate-float z-10" />
+			<div
+				className="fixed top-1/3 right-20 w-12 h-12 border border-amber-400/15 rounded-lg rotate-45 animate-float z-10"
+				style={{ animationDelay: '2s' }}
+			/>
+			<div
+				className="fixed bottom-20 left-1/4 w-10 h-10 border border-yellow-400/15 rounded-full animate-float z-10"
+				style={{ animationDelay: '4s' }}
+			/>
+
+			{/* Content with higher z-index */}
+			<div className="relative z-20">
+				<Navbar />
+				<main className="min-h-screen">
+					{/* Header Section */}
+					<section className="pt-24 pb-12 relative">
+						<div className="absolute inset-0 glass-dark rounded-none" />
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+							<div className="text-center mb-8">
+								<h1 className="text-3xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
+									Browse All Events
+								</h1>
+								<p className="text-lg md:text-xl mb-6 text-white/90 drop-shadow-md">
+									Discover amazing events happening near you
 								</p>
 							</div>
-						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-							{filteredEvents.map((event) => {
-								const eventStatus = getEventStatus(event);
-								const occupancyRate =
-									((event.total_seats - event.available_seats) /
-										event.total_seats) *
-									100;
+							{/* Enhanced Search and Filter Section */}
+							<div className="max-w-5xl mx-auto">
+								<div className="glass rounded-2xl p-6 lg:p-8">
+									<h2 className="text-xl md:text-2xl font-bold text-white mb-6 text-center">
+										Find Your Perfect Event
+									</h2>
 
-								return (
-									<div
-										key={event.id}
-										className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-										onClick={() => handleEventClick(event.id)}
-									>
-										{/* Event Image */}
-										<div className="h-48 bg-gray-200 relative">
-											{event.image ? (
-												<Image
-													src={event.image}
-													alt={event.title}
-													fill
-													className="object-cover"
-													onError={(e) => {
-														const target = e.target as HTMLImageElement;
-														target.src = '/placeholder-event.jpg';
-													}}
-												/>
-											) : (
-												<div className="h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-													<span className="text-white text-lg font-semibold">
-														{event.title.slice(0, 2).toUpperCase()}
-													</span>
-												</div>
-											)}
-											{/* Status Badge */}
-											<div className="absolute top-3 right-3">
-												<span
-													className={`px-2 py-1 rounded-full text-xs font-medium ${eventStatus.color}`}
-												>
-													{eventStatus.status}
-												</span>
+									{/* Enhanced Search Section */}
+									<div className="space-y-6">
+										{/* Main Search Bar */}
+										<div className="grid md:grid-cols-2 gap-4">
+											<input
+												type="text"
+												placeholder="Search events..."
+												value={searchQuery}
+												onChange={(e) => setSearchQuery(e.target.value)}
+												className="w-full px-4 py-3 rounded-lg glass text-white placeholder:text-white/70 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30"
+											/>
+											<input
+												type="text"
+												placeholder="Location (city, venue)..."
+												value={locationQuery}
+												onChange={(e) => setLocationQuery(e.target.value)}
+												className="w-full px-4 py-3 rounded-lg glass text-white placeholder:text-white/70 border-none focus:border-white/30 focus:ring-0 focus:outline-none focus:ring-white/20 focus-visible:ring-white/20 focus-visible:border-white/30"
+											/>
+										</div>
+
+										<button
+											onClick={handleSearch}
+											className="w-full bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm border border-white/20 hover:border-white/30"
+										>
+											Search Events
+										</button>
+
+										{/* Category Filter Pills */}
+										<div>
+											<h3 className="text-white font-semibold mb-3 text-sm">
+												Categories
+											</h3>
+											<div className="flex flex-wrap gap-2">
+												{categories.map((category) => {
+													const isSelected =
+														selectedCategory === category.value;
+													let buttonClasses =
+														'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 backdrop-blur-sm border ';
+
+													// Always show colors, but with different opacity/intensity based on selection
+													switch (category.value) {
+														case 'all':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-white/30 to-white/20 border-white/40 text-white shadow-lg scale-105'
+																: 'bg-gradient-to-r from-white/15 to-white/10 border-white/25 text-white/90 hover:from-white/25 hover:to-white/15 hover:scale-105';
+															break;
+														case 'Music':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-purple-500/40 to-pink-500/30 border-purple-400/50 text-white shadow-lg shadow-purple-500/25 scale-105'
+																: 'bg-gradient-to-r from-purple-500/20 to-pink-500/15 border-purple-400/30 text-white/90 hover:from-purple-500/30 hover:to-pink-500/20 hover:scale-105';
+															break;
+														case 'Sports':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-green-500/40 to-emerald-500/30 border-green-400/50 text-white shadow-lg shadow-green-500/25 scale-105'
+																: 'bg-gradient-to-r from-green-500/20 to-emerald-500/15 border-green-400/30 text-white/90 hover:from-green-500/30 hover:to-emerald-500/20 hover:scale-105';
+															break;
+														case 'Technology':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-blue-500/40 to-cyan-500/30 border-blue-400/50 text-white shadow-lg shadow-blue-500/25 scale-105'
+																: 'bg-gradient-to-r from-blue-500/20 to-cyan-500/15 border-blue-400/30 text-white/90 hover:from-blue-500/30 hover:to-cyan-500/20 hover:scale-105';
+															break;
+														case 'Food & Drink':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-orange-500/40 to-red-500/30 border-orange-400/50 text-white shadow-lg shadow-orange-500/25 scale-105'
+																: 'bg-gradient-to-r from-orange-500/20 to-red-500/15 border-orange-400/30 text-white/90 hover:from-orange-500/30 hover:to-red-500/20 hover:scale-105';
+															break;
+														case 'Art & Culture':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-indigo-500/40 to-purple-500/30 border-indigo-400/50 text-white shadow-lg shadow-indigo-500/25 scale-105'
+																: 'bg-gradient-to-r from-indigo-500/20 to-purple-500/15 border-indigo-400/30 text-white/90 hover:from-indigo-500/30 hover:to-purple-500/20 hover:scale-105';
+															break;
+														case 'Business':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-gray-500/40 to-slate-500/30 border-gray-400/50 text-white shadow-lg shadow-gray-500/25 scale-105'
+																: 'bg-gradient-to-r from-gray-500/20 to-slate-500/15 border-gray-400/30 text-white/90 hover:from-gray-500/30 hover:to-slate-500/20 hover:scale-105';
+															break;
+														case 'Education':
+															buttonClasses += isSelected
+																? 'bg-gradient-to-r from-yellow-500/40 to-amber-500/30 border-yellow-400/50 text-white shadow-lg shadow-yellow-500/25 scale-105'
+																: 'bg-gradient-to-r from-yellow-500/20 to-amber-500/15 border-yellow-400/30 text-white/90 hover:from-yellow-500/30 hover:to-amber-500/20 hover:scale-105';
+															break;
+														default:
+															buttonClasses += isSelected
+																? 'bg-white/30 text-white border-white/40 shadow-lg scale-105'
+																: 'bg-white/15 text-white/80 border-white/25 hover:bg-white/25 hover:scale-105';
+													}
+
+													return (
+														<button
+															key={category.value}
+															onClick={() =>
+																handleCategoryClick(category.value)
+															}
+															className={buttonClasses}
+														>
+															{category.label}
+														</button>
+													);
+												})}
 											</div>
 										</div>
 
-										{/* Event Content */}
-										<div className="p-6">
-											<div className="flex items-start justify-between mb-2">
-												<h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-													{event.title}
-												</h3>
+										{/* Quick Filter Options */}
+										<div>
+											<h3 className="text-white font-semibold mb-3 text-sm">
+												Quick Filters
+											</h3>
+											<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+												<button
+													onClick={() => handleDateFilterClick('weekend')}
+													className={`px-3 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300 text-sm ${
+														dateFilter === 'weekend'
+															? 'border-white/30 text-white bg-white/20'
+															: 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
+													}`}
+												>
+													This Weekend
+												</button>
+												<button
+													onClick={() => handleDateFilterClick('nextweek')}
+													className={`px-3 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300 text-sm ${
+														dateFilter === 'nextweek'
+															? 'border-white/30 text-white bg-white/20'
+															: 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
+													}`}
+												>
+													Next Week
+												</button>
+												<button
+													onClick={() => handleDateFilterClick('free')}
+													className={`px-3 py-2 rounded-lg backdrop-blur-sm border transition-all duration-300 text-sm ${
+														dateFilter === 'free'
+															? 'border-white/30 text-white bg-white/20'
+															: 'border-white/20 text-white/70 hover:text-white hover:bg-white/10'
+													}`}
+												>
+													Free Events
+												</button>
+												<button className="px-3 py-2 rounded-lg backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm">
+													Near Me
+												</button>
 											</div>
-
-											<div className="space-y-2 text-sm text-gray-600 mb-4">
-												<div className="flex items-center">
-													<svg
-														className="w-4 h-4 mr-2 text-gray-400"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V13a2 2 0 012-2z"
-														/>
-													</svg>
-													<span>
-														{formatDate(event.date)} at {event.time}
-													</span>
-												</div>
-												<div className="flex items-center">
-													<svg
-														className="w-4 h-4 mr-2 text-gray-400"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-														/>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-														/>
-													</svg>
-													<span className="line-clamp-1">{event.location}</span>
-												</div>
-												<div className="flex items-center">
-													<svg
-														className="w-4 h-4 mr-2 text-gray-400"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-														/>
-													</svg>
-													<span className="font-semibold text-gray-900">
-														{formatPrice(event.price)}
-													</span>
-												</div>
-											</div>
-
-											{/* Seats and Progress */}
-											<div className="mb-4">
-												<div className="flex justify-between text-sm text-gray-600 mb-1">
-													<span>Available Seats</span>
-													<span>
-														{event.available_seats} / {event.total_seats}
-													</span>
-												</div>
-												<div className="w-full bg-gray-200 rounded-full h-2">
-													<div
-														className="bg-primary h-2 rounded-full transition-all duration-300"
-														style={{ width: `${occupancyRate}%` }}
-													></div>
-												</div>
-											</div>
-
-											{/* Description */}
-											{event.description && (
-												<p className="text-sm text-gray-600 line-clamp-2 mb-4">
-													{event.description}
-												</p>
-											)}
-
-											{/* Action Button */}
-											<Button
-												className="w-full"
-												disabled={
-													event.available_seats === 0 ||
-													new Date(event.date) < new Date()
-												}
-											>
-												{event.available_seats === 0
-													? 'Sold Out'
-													: new Date(event.date) < new Date()
-													? 'Event Ended'
-													: 'View Details'}
-											</Button>
 										</div>
 									</div>
-								);
-							})}
+								</div>
+							</div>
 						</div>
-					</>
-				)}
-			</div>
+					</section>
 
-			<Footer />
-		</div>
+					{/* Events Section */}
+					<section
+						ref={eventsRef}
+						className="py-16 relative"
+					>
+						<div className="absolute inset-0 glass rounded-none" />
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+							{/* Events Section Header */}
+							<div className="text-center mb-12">
+								<h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
+									All Events
+								</h2>
+								<p className="text-lg text-white/80 drop-shadow-md">
+									Browse all events - upcoming and past
+								</p>
+							</div>
+
+							<EventListHome
+								searchQuery={searchQuery}
+								locationQuery={locationQuery}
+								categoryFilter={selectedCategory}
+								dateFilter={dateFilter}
+								showPastEvents={true}
+							/>
+						</div>
+					</section>
+				</main>
+				<Footer />
+			</div>
+		</>
 	);
 }

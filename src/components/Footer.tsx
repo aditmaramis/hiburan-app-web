@@ -2,25 +2,32 @@ import Link from 'next/link';
 
 export default function Footer() {
 	return (
-		<footer className="bg-gray-900 text-white">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<footer className="bg-gradient-to-t from-slate-900 to-transparent backdrop-blur-md border-t border-white/20 text-white relative overflow-hidden">
+			{/* Animated Background Elements */}
+			<div className="absolute inset-0 overflow-hidden">
+				<div className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+				<div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+			</div>
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 				<div className="grid md:grid-cols-4 gap-8">
 					{/* Company Info */}
 					<div className="col-span-1">
 						<div className="flex items-center gap-2 text-xl font-bold mb-4">
-							<div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+							<div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center backdrop-blur-sm">
 								<span className="text-white font-bold text-sm">H</span>
 							</div>
-							HiburanApp
+							<span className="bg-gradient-to-r from-white via-orange-200 to-orange-500 bg-clip-text text-transparent">
+								HiburanApp
+							</span>
 						</div>
-						<p className="text-gray-400 mb-4">
+						<p className="text-white/70 mb-4">
 							Discover and book amazing events happening around you. From
 							concerts to conferences, we have it all.
 						</p>
 						<div className="flex space-x-4">
 							<a
 								href="#"
-								className="text-gray-400 hover:text-white transition"
+								className="text-white/60 hover:text-white transition-colors duration-300 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm"
 							>
 								<svg
 									className="w-5 h-5"
@@ -32,7 +39,7 @@ export default function Footer() {
 							</a>
 							<a
 								href="#"
-								className="text-gray-400 hover:text-white transition"
+								className="text-white/60 hover:text-white transition-colors duration-300 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm"
 							>
 								<svg
 									className="w-5 h-5"
@@ -44,7 +51,7 @@ export default function Footer() {
 							</a>
 							<a
 								href="#"
-								className="text-gray-400 hover:text-white transition"
+								className="text-white/60 hover:text-white transition-colors duration-300 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm"
 							>
 								<svg
 									className="w-5 h-5"
@@ -59,12 +66,14 @@ export default function Footer() {
 
 					{/* Quick Links */}
 					<div>
-						<h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+						<h3 className="text-lg font-semibold mb-4 text-white">
+							Quick Links
+						</h3>
 						<ul className="space-y-2">
 							<li>
 								<Link
 									href="/"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Home
 								</Link>
@@ -72,7 +81,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/events"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Browse Events
 								</Link>
@@ -80,7 +89,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/about"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									About Us
 								</Link>
@@ -88,7 +97,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/contact"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Contact
 								</Link>
@@ -98,12 +107,14 @@ export default function Footer() {
 
 					{/* For Organizers */}
 					<div>
-						<h3 className="text-lg font-semibold mb-4">For Organizers</h3>
+						<h3 className="text-lg font-semibold mb-4 text-white">
+							For Organizers
+						</h3>
 						<ul className="space-y-2">
 							<li>
 								<Link
 									href="/register"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Create Account
 								</Link>
@@ -111,7 +122,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/dashboard"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Dashboard
 								</Link>
@@ -119,7 +130,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/help"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Help Center
 								</Link>
@@ -127,7 +138,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/pricing"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Pricing
 								</Link>
@@ -137,12 +148,12 @@ export default function Footer() {
 
 					{/* Support */}
 					<div>
-						<h3 className="text-lg font-semibold mb-4">Support</h3>
+						<h3 className="text-lg font-semibold mb-4 text-white">Support</h3>
 						<ul className="space-y-2">
 							<li>
 								<Link
 									href="/help"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Help Center
 								</Link>
@@ -150,7 +161,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/terms"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Terms of Service
 								</Link>
@@ -158,7 +169,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/privacy"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Privacy Policy
 								</Link>
@@ -166,7 +177,7 @@ export default function Footer() {
 							<li>
 								<Link
 									href="/refund"
-									className="text-gray-400 hover:text-white transition"
+									className="text-white/70 hover:text-white transition-colors duration-300"
 								>
 									Refund Policy
 								</Link>
@@ -176,26 +187,26 @@ export default function Footer() {
 				</div>
 
 				{/* Bottom Bar */}
-				<div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-					<p className="text-gray-400 text-sm">
+				<div className="border-t border-white/20 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+					<p className="text-white/60 text-sm">
 						© 2025 HiburanApp. All rights reserved.
 					</p>
 					<div className="flex space-x-6 mt-4 md:mt-0">
 						<Link
 							href="/terms"
-							className="text-gray-400 hover:text-white text-sm transition"
+							className="text-white/60 hover:text-white text-sm transition-colors duration-300"
 						>
 							Terms
 						</Link>
 						<Link
 							href="/privacy"
-							className="text-gray-400 hover:text-white text-sm transition"
+							className="text-white/60 hover:text-white text-sm transition-colors duration-300"
 						>
 							Privacy
 						</Link>
 						<Link
 							href="/cookies"
-							className="text-gray-400 hover:text-white text-sm transition"
+							className="text-white/60 hover:text-white text-sm transition-colors duration-300"
 						>
 							Cookies
 						</Link>
