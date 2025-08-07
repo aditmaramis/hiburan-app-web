@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Button } from '@/components/ui/button';
 import EventList from '@/components/dashboard/EventList';
 import TransactionList from '@/components/dashboard/TransactionList';
 import AttendeeList from '@/components/dashboard/AttendeeList';
@@ -205,68 +204,84 @@ export default function DashboardPage() {
 
 	if (isLoading) {
 		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-lg">Loading dashboard...</div>
+			<div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+				<div className="text-center">
+					<div className="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+						<span className="text-white text-2xl">⏳</span>
+					</div>
+					<div className="text-white text-lg">Loading your dashboard...</div>
+					<div className="text-gray-400 text-sm mt-2">Please wait a moment</div>
+				</div>
 			</div>
 		);
 	}
 
 	if (error) {
 		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-center">
-					<div className="text-red-500 text-lg mb-4">{error}</div>
-					<Button onClick={() => router.push('/login')}>Go to Login</Button>
+			<div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+				<div className="text-center bg-gray-800 p-8 rounded-xl border border-gray-700">
+					<div className="text-red-400 text-lg mb-4">{error}</div>
+					<button
+						className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-all duration-200 font-medium"
+						onClick={() => router.push('/login')}
+					>
+						Go to Login
+					</button>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-gray-400">
 			{/* Header */}
-			<header className="bg-white shadow-sm border-b">
+			<header className="bg-gray-800/50 backdrop-blur-sm border-b border-orange-500/20">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="flex justify-between items-center py-4">
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">
+							<h1 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
 								Event Management Dashboard
 							</h1>
-							<p className="text-gray-600">Welcome back, {user?.name}</p>
+							<p className="text-white text-sm">
+								Welcome back,{' '}
+								<span className="text-orange-400 font-medium">
+									{user?.name}
+								</span>
+								!
+							</p>
 						</div>
-						<div className="flex items-center gap-4">
-							<Button
-								variant="outline"
+						<div className="flex items-center gap-2">
+							<button
+								className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-all duration-200 border border-gray-600 hover:border-orange-500/50"
 								onClick={handleGoHome}
 							>
 								🏠 Home
-							</Button>
-							<Button
-								variant="outline"
+							</button>
+							<button
+								className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-all duration-200 border border-gray-600 hover:border-orange-500/50"
 								onClick={() => router.push('/profile')}
 							>
 								Profile
-							</Button>
-							<Button
-								variant="outline"
+							</button>
+							<button
+								className="px-3 py-1.5 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm rounded-lg transition-all duration-200 font-medium"
 								onClick={() => router.push('/dashboard/create-event')}
-								className="bg-blue-600 text-white hover:bg-blue-700"
 							>
 								+ Create Event
-							</Button>
-							<Button
-								variant="outline"
+							</button>
+							<button
+								className="px-3 py-1.5 bg-gray-700 hover:bg-red-600 text-white text-sm rounded-lg transition-all duration-200 border border-gray-600 hover:border-red-500"
 								onClick={handleLogout}
 							>
 								Logout
-							</Button>
+							</button>
 						</div>
 					</div>
 				</div>
 			</header>
 
 			{/* Navigation Tabs */}
-			<div className="bg-white border-b">
+			<div className="bg-gray-800/30 backdrop-blur-sm border-b border-gray-700">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<nav className="flex space-x-8">
 						{[
@@ -288,10 +303,10 @@ export default function DashboardPage() {
 											| 'statistics'
 									)
 								}
-								className={`py-4 px-1 border-b-2 font-medium text-sm ${
+								className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
 									activeTab === tab.key
-										? 'border-primary text-primary'
-										: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+										? 'border-orange-500 text-orange-400'
+										: 'border-transparent text-white hover:text-gray-300 hover:border-gray-600'
 								}`}
 							>
 								{tab.label}
@@ -302,111 +317,150 @@ export default function DashboardPage() {
 			</div>
 
 			{/* Main Content */}
-			<main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+			<main className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
 				{/* Success Message */}
 				{successMessage && (
-					<div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-						<div className="text-green-800">{successMessage}</div>
+					<div className="mb-4 bg-gradient-to-r from-green-600 to-green-700 p-4 rounded-xl border border-green-500">
+						<div className="text-green-100 font-medium">{successMessage}</div>
 					</div>
 				)}
 
 				{activeTab === 'overview' && dashboardData && (
-					<div className="space-y-6">
+					<div className="space-y-4">
+						{/* Welcome Section */}
+						<div className="mb-4 text-center">
+							<h2 className="text-2xl font-bold text-gray-900 mb-1">
+								Your Dashboard
+							</h2>
+							<p className="text-gray-600 text-sm">
+								Manage your events, attendees, and revenue all in one place
+							</p>
+						</div>
+
 						{/* Main Stats */}
-						<div className="bg-white p-6 rounded-lg shadow">
-							<h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
-							<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-								<div className="bg-blue-50 p-4 rounded">
-									<div className="text-2xl font-bold text-blue-600">
+						<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+							<div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+								<div className="flex items-center justify-between mb-2">
+									<div className="text-2xl font-bold text-white">
 										{dashboardData.totalEvents}
 									</div>
-									<div className="text-sm text-gray-600">Total Events</div>
+									<div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+										<span className="text-white text-sm">🎭</span>
+									</div>
 								</div>
-								<div className="bg-green-50 p-4 rounded">
-									<div className="text-2xl font-bold text-green-600">
+								<div className="text-sm text-orange-100">Total Events</div>
+							</div>
+							<div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+								<div className="flex items-center justify-between mb-2">
+									<div className="text-lg font-bold text-white">
 										IDR {dashboardData.totalRevenue.toLocaleString()}
 									</div>
-									<div className="text-sm text-gray-600">Total Revenue</div>
+									<div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+										<span className="text-white text-sm">💰</span>
+									</div>
 								</div>
-								<div className="bg-purple-50 p-4 rounded">
-									<div className="text-2xl font-bold text-purple-600">
+								<div className="text-sm text-green-100">Total Revenue</div>
+							</div>
+							<div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+								<div className="flex items-center justify-between mb-2">
+									<div className="text-2xl font-bold text-white">
 										{dashboardData.totalAttendees}
 									</div>
-									<div className="text-sm text-gray-600">Total Attendees</div>
+									<div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+										<span className="text-white text-sm">👥</span>
+									</div>
 								</div>
-								<div className="bg-orange-50 p-4 rounded">
-									<div className="text-2xl font-bold text-orange-600">
+								<div className="text-sm text-purple-100">Total Attendees</div>
+							</div>
+							<div className="bg-gradient-to-br from-gray-600 to-gray-700 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+								<div className="flex items-center justify-between mb-2">
+									<div className="text-2xl font-bold text-white">
 										{dashboardData.pendingTransactions}
 									</div>
-									<div className="text-sm text-gray-600">
-										Pending Transactions
+									<div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+										<span className="text-white text-sm">⏳</span>
 									</div>
+								</div>
+								<div className="text-sm text-gray-100">
+									Pending Transactions
 								</div>
 							</div>
 						</div>
 
 						{/* Quick Actions */}
-						<div className="bg-white p-6 rounded-lg shadow">
-							<h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+						<div className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-orange-500/30">
+							<div className="flex items-center justify-between mb-3">
+								<h3 className="text-lg font-bold text-white">Quick Actions</h3>
+								<div className="w-6 h-6 bg-orange-600 rounded-full flex items-center justify-center">
+									<span className="text-white text-xs">⚡</span>
+								</div>
+							</div>
 							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-								<Button
+								<button
 									onClick={() => router.push('/dashboard/create-event')}
-									className="h-16 text-left justify-start"
+									className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
 								>
-									<div>
-										<div className="font-medium">Create New Event</div>
-										<div className="text-sm opacity-80">
+									<div className="text-left">
+										<div className="font-medium mb-1">Create New Event</div>
+										<div className="text-sm opacity-90">
 											Set up your next event
 										</div>
 									</div>
-								</Button>
-								<Button
-									variant="outline"
+								</button>
+								<button
 									onClick={() => setActiveTab('events')}
-									className="h-16 text-left justify-start"
+									className="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-all duration-300 border border-gray-600 hover:border-orange-500/50"
 								>
-									<div>
-										<div className="font-medium">Manage Events</div>
+									<div className="text-left">
+										<div className="font-medium mb-1">Manage Events</div>
 										<div className="text-sm opacity-80">
 											Edit or cancel events
 										</div>
 									</div>
-								</Button>
-								<Button
-									variant="outline"
+								</button>
+								<button
 									onClick={() => setActiveTab('transactions')}
-									className="h-16 text-left justify-start"
+									className="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-all duration-300 border border-gray-600 hover:border-orange-500/50"
 								>
-									<div>
-										<div className="font-medium">Review Payments</div>
+									<div className="text-left">
+										<div className="font-medium mb-1">Review Payments</div>
 										<div className="text-sm opacity-80">
 											Check pending transactions
 										</div>
 									</div>
-								</Button>
+								</button>
 							</div>
 						</div>
 					</div>
 				)}
 
 				{activeTab === 'events' && (
-					<EventList
-						events={events}
-						onRefresh={fetchDashboardData}
-						onSelectEvent={() => {
-							// View attendees functionality would go here
-							setActiveTab('attendees');
-						}}
-						onEditEvent={handleEditEvent}
-						onViewDetails={handleViewEventDetails}
-						onCancelEvent={handleCancelEvent}
-					/>
+					<div className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700">
+						<EventList
+							events={events}
+							onRefresh={fetchDashboardData}
+							onSelectEvent={() => {
+								// View attendees functionality would go here
+								setActiveTab('attendees');
+							}}
+							onEditEvent={handleEditEvent}
+							onViewDetails={handleViewEventDetails}
+							onCancelEvent={handleCancelEvent}
+						/>
+					</div>
 				)}
 
 				{activeTab === 'transactions' && (
-					<div className="bg-white p-6 rounded-lg shadow">
-						<h2 className="text-2xl font-bold mb-4">Transaction Management</h2>
-						<p className="text-gray-600 mb-6">
+					<div className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700">
+						<div className="flex items-center justify-between mb-3">
+							<h2 className="text-xl font-bold text-white">
+								Transaction Management
+							</h2>
+							<div className="w-6 h-6 bg-orange-600 rounded-full flex items-center justify-center">
+								<span className="text-white text-xs">💳</span>
+							</div>
+						</div>
+						<p className="text-gray-400 mb-4 text-sm">
 							Review and manage payment transactions from customers
 						</p>
 						<TransactionList onRefresh={fetchDashboardData} />
@@ -414,13 +468,29 @@ export default function DashboardPage() {
 				)}
 
 				{activeTab === 'attendees' && (
-					<div className="bg-white p-6 rounded-lg shadow">
+					<div className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700">
+						<div className="flex items-center justify-between mb-3">
+							<h2 className="text-xl font-bold text-white">
+								Attendee Management
+							</h2>
+							<div className="w-6 h-6 bg-orange-600 rounded-full flex items-center justify-center">
+								<span className="text-white text-xs">👥</span>
+							</div>
+						</div>
 						<AttendeeList onRefresh={fetchDashboardData} />
 					</div>
 				)}
 
 				{activeTab === 'statistics' && (
-					<div>
+					<div className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700">
+						<div className="flex items-center justify-between mb-3">
+							<h2 className="text-xl font-bold text-white">
+								Statistics & Analytics
+							</h2>
+							<div className="w-6 h-6 bg-orange-600 rounded-full flex items-center justify-center">
+								<span className="text-white text-xs">📊</span>
+							</div>
+						</div>
 						<StatisticsDashboard />
 					</div>
 				)}

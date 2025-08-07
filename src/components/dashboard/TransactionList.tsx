@@ -173,7 +173,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 					{transactions.map((transaction) => (
 						<Card
 							key={transaction.id}
-							className="p-6"
+							className="p-6 text-orange-400"
 						>
 							<div className="flex justify-between items-start mb-4">
 								<div>
@@ -181,7 +181,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 										{transaction.bookings?.events?.title ||
 											'Event Title Unavailable'}
 									</h3>
-									<p className="text-gray-600">Transaction #{transaction.id}</p>
+									<p className="text-white">Transaction #{transaction.id}</p>
 								</div>
 								<TransactionStatusBadge
 									status={transaction.status as TransactionStatus}
@@ -190,35 +190,35 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 								<div>
-									<h4 className="font-medium text-gray-900 mb-2">
+									<h4 className="font-medium text-orange-400 mb-2">
 										Customer Details
 									</h4>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Name:</strong>{' '}
 										{transaction.bookings?.users?.name || 'N/A'}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Email:</strong>{' '}
 										{transaction.bookings?.users?.email || 'N/A'}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Quantity:</strong>{' '}
 										{transaction.bookings?.quantity || 0} ticket(s)
 									</p>
 								</div>
 
 								<div>
-									<h4 className="font-medium text-gray-900 mb-2">
+									<h4 className="font-medium text-orange-400 mb-2">
 										Payment Details
 									</h4>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Amount:</strong>{' '}
 										{formatCurrency(Number(transaction.amount))}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Method:</strong> {transaction.payment_method}
 									</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-white">
 										<strong>Date:</strong>{' '}
 										{formatDate(transaction.payment_date)}
 									</p>
@@ -226,20 +226,20 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 							</div>
 
 							<div className="mb-4">
-								<h4 className="font-medium text-gray-900 mb-2">
+								<h4 className="font-medium text-orange-400 mb-2">
 									Event Details
 								</h4>
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-white">
 									<strong>Date:</strong>{' '}
 									{transaction.bookings?.events?.date
 										? formatDate(transaction.bookings.events.date)
 										: 'Date TBA'}
 								</p>
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-white">
 									<strong>Time:</strong>{' '}
 									{transaction.bookings?.events?.time || 'Time TBA'}
 								</p>
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-white">
 									<strong>Location:</strong>{' '}
 									{transaction.bookings?.events?.location || 'Location TBA'}
 								</p>
@@ -247,7 +247,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 
 							{transaction.payment_proof && (
 								<div className="mb-4">
-									<h4 className="font-medium text-gray-900 mb-2">
+									<h4 className="font-medium text-orange-400 mb-2">
 										Payment Proof
 									</h4>
 									<div
@@ -297,7 +297,7 @@ export default function TransactionList({ onRefresh }: TransactionListProps) {
 										onClick={() =>
 											handleStatusUpdate(transaction.id, 'accepted')
 										}
-										className="bg-green-600 hover:bg-green-700"
+										className="text-white bg-green-600 hover:bg-green-700"
 									>
 										Accept
 									</Button>

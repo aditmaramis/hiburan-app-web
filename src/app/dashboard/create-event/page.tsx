@@ -277,28 +277,30 @@ export default function CreateEventPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-gradient-to-br from-[#18181c] via-[#23232a] to-[#1a1a1f]">
 			{/* Header */}
-			<header className="bg-white shadow-sm border-b">
+			<header className="bg-[#18181c] shadow-sm border-b border-[#23232a]">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="flex justify-between items-center py-4">
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">
+							<h1 className="text-2xl font-bold text-orange-500">
 								Create New Event
 							</h1>
-							<p className="text-gray-600">
+							<p className="text-gray-400">
 								Fill in the details to create your event
 							</p>
 						</div>
 						<div className="flex items-center gap-4">
 							<Button
 								variant="outline"
+								className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
 								onClick={handleCancel}
 							>
 								Cancel
 							</Button>
 							<Button
 								variant="outline"
+								className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
 								onClick={() => router.push('/')}
 							>
 								Home
@@ -310,30 +312,37 @@ export default function CreateEventPage() {
 
 			{/* Main Content */}
 			<main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				<Card className="p-6">
+				<Card className="p-6 bg-[#23232a] border border-[#23232a] shadow-lg">
 					<form
 						onSubmit={handleSubmit}
 						className="space-y-6"
 					>
 						{/* Success/Error Messages */}
 						{success && (
-							<div className="bg-green-50 border border-green-200 rounded-md p-4">
-								<div className="text-green-800">{success}</div>
+							<div className="bg-green-900 border border-green-700 rounded-md p-4">
+								<div className="text-green-300">{success}</div>
 							</div>
 						)}
 
 						{error && (
-							<div className="bg-red-50 border border-red-200 rounded-md p-4">
-								<div className="text-red-800">{error}</div>
+							<div className="bg-red-900 border border-red-700 rounded-md p-4">
+								<div className="text-red-300">{error}</div>
 							</div>
 						)}
 
 						{/* Basic Information */}
 						<div>
-							<h2 className="text-lg font-semibold mb-4">Basic Information</h2>
+							<h2 className="text-lg font-semibold mb-4 text-orange-500">
+								Basic Information
+							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<div>
-									<Label htmlFor="title">Event Title *</Label>
+									<Label
+										htmlFor="title"
+										className="text-gray-300"
+									>
+										Event Title *
+									</Label>
 									<Input
 										id="title"
 										name="title"
@@ -341,7 +350,9 @@ export default function CreateEventPage() {
 										placeholder="Enter event title"
 										value={formData.title}
 										onChange={handleInputChange}
-										className={errors.title ? 'border-red-500' : ''}
+										className={`bg-[#18181c] text-gray-200 border ${
+											errors.title ? 'border-red-500' : 'border-gray-700'
+										} focus:ring-orange-500`}
 									/>
 									{errors.title && (
 										<p className="text-red-500 text-sm mt-1">{errors.title}</p>
@@ -349,14 +360,19 @@ export default function CreateEventPage() {
 								</div>
 
 								<div>
-									<Label htmlFor="category">Category *</Label>
+									<Label
+										htmlFor="category"
+										className="text-gray-300"
+									>
+										Category *
+									</Label>
 									<select
 										id="category"
 										name="category"
 										value={formData.category}
 										onChange={handleInputChange}
-										className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-											errors.category ? 'border-red-500' : 'border-gray-300'
+										className={`w-full px-3 py-2 bg-[#18181c] text-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+											errors.category ? 'border-red-500' : 'border-gray-700'
 										}`}
 									>
 										<option value="">Select a category</option>
@@ -378,7 +394,12 @@ export default function CreateEventPage() {
 							</div>
 
 							<div className="mt-4">
-								<Label htmlFor="description">Description *</Label>
+								<Label
+									htmlFor="description"
+									className="text-gray-300"
+								>
+									Description *
+								</Label>
 								<textarea
 									id="description"
 									name="description"
@@ -386,8 +407,8 @@ export default function CreateEventPage() {
 									placeholder="Describe your event..."
 									value={formData.description}
 									onChange={handleInputChange}
-									className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical ${
-										errors.description ? 'border-red-500' : 'border-gray-300'
+									className={`w-full px-3 py-2 bg-[#18181c] text-gray-200 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 resize-vertical ${
+										errors.description ? 'border-red-500' : 'border-gray-700'
 									}`}
 								/>
 								{errors.description && (
@@ -400,17 +421,26 @@ export default function CreateEventPage() {
 
 						{/* Date and Time */}
 						<div>
-							<h2 className="text-lg font-semibold mb-4">Date & Time</h2>
+							<h2 className="text-lg font-semibold mb-4 text-orange-500">
+								Date & Time
+							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<div>
-									<Label htmlFor="date">Event Date *</Label>
+									<Label
+										htmlFor="date"
+										className="text-gray-300"
+									>
+										Event Date *
+									</Label>
 									<Input
 										id="date"
 										name="date"
 										type="date"
 										value={formData.date}
 										onChange={handleInputChange}
-										className={errors.date ? 'border-red-500' : ''}
+										className={`bg-[#18181c] text-gray-200 border ${
+											errors.date ? 'border-red-500' : 'border-gray-700'
+										} focus:ring-orange-500`}
 									/>
 									{errors.date && (
 										<p className="text-red-500 text-sm mt-1">{errors.date}</p>
@@ -418,14 +448,21 @@ export default function CreateEventPage() {
 								</div>
 
 								<div>
-									<Label htmlFor="time">Event Time *</Label>
+									<Label
+										htmlFor="time"
+										className="text-gray-300"
+									>
+										Event Time *
+									</Label>
 									<Input
 										id="time"
 										name="time"
 										type="time"
 										value={formData.time}
 										onChange={handleInputChange}
-										className={errors.time ? 'border-red-500' : ''}
+										className={`bg-[#18181c] text-gray-200 border ${
+											errors.time ? 'border-red-500' : 'border-gray-700'
+										} focus:ring-orange-500`}
 									/>
 									{errors.time && (
 										<p className="text-red-500 text-sm mt-1">{errors.time}</p>
@@ -436,9 +473,16 @@ export default function CreateEventPage() {
 
 						{/* Location */}
 						<div>
-							<h2 className="text-lg font-semibold mb-4">Location</h2>
+							<h2 className="text-lg font-semibold mb-4 text-orange-500">
+								Location
+							</h2>
 							<div>
-								<Label htmlFor="location">Venue *</Label>
+								<Label
+									htmlFor="location"
+									className="text-gray-300"
+								>
+									Venue *
+								</Label>
 								<Input
 									id="location"
 									name="location"
@@ -446,7 +490,9 @@ export default function CreateEventPage() {
 									placeholder="Enter venue name and address"
 									value={formData.location}
 									onChange={handleInputChange}
-									className={errors.location ? 'border-red-500' : ''}
+									className={`bg-[#18181c] text-gray-200 border ${
+										errors.location ? 'border-red-500' : 'border-gray-700'
+									} focus:ring-orange-500`}
 								/>
 								{errors.location && (
 									<p className="text-red-500 text-sm mt-1">{errors.location}</p>
@@ -456,16 +502,23 @@ export default function CreateEventPage() {
 
 						{/* Pricing and Capacity */}
 						<div>
-							<h2 className="text-lg font-semibold mb-4">Pricing & Capacity</h2>
+							<h2 className="text-lg font-semibold mb-4 text-orange-500">
+								Pricing & Capacity
+							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 								<div>
-									<Label htmlFor="currency">Currency *</Label>
+									<Label
+										htmlFor="currency"
+										className="text-gray-300"
+									>
+										Currency *
+									</Label>
 									<select
 										id="currency"
 										name="currency"
 										value={formData.currency}
 										onChange={handleInputChange}
-										className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+										className="w-full px-3 py-2 bg-[#18181c] text-gray-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
 									>
 										{getSupportedCurrencies().map((currency) => (
 											<option
@@ -479,7 +532,12 @@ export default function CreateEventPage() {
 								</div>
 
 								<div>
-									<Label htmlFor="price">Ticket Price *</Label>
+									<Label
+										htmlFor="price"
+										className="text-gray-300"
+									>
+										Ticket Price *
+									</Label>
 									<Input
 										id="price"
 										name="price"
@@ -491,10 +549,12 @@ export default function CreateEventPage() {
 										}
 										value={formData.price}
 										onChange={handleInputChange}
-										className={errors.price ? 'border-red-500' : ''}
+										className={`bg-[#18181c] text-gray-200 border ${
+											errors.price ? 'border-red-500' : 'border-gray-700'
+										} focus:ring-orange-500`}
 									/>
 									{formData.price > 0 && (
-										<p className="text-sm text-gray-600 mt-1">
+										<p className="text-sm text-gray-400 mt-1">
 											Preview:{' '}
 											{formatCurrency(formData.price, formData.currency)}
 										</p>
@@ -505,7 +565,12 @@ export default function CreateEventPage() {
 								</div>
 
 								<div>
-									<Label htmlFor="totalSeats">Total Seats *</Label>
+									<Label
+										htmlFor="totalSeats"
+										className="text-gray-300"
+									>
+										Total Seats *
+									</Label>
 									<Input
 										id="totalSeats"
 										name="totalSeats"
@@ -514,7 +579,9 @@ export default function CreateEventPage() {
 										placeholder="100"
 										value={formData.totalSeats}
 										onChange={handleInputChange}
-										className={errors.totalSeats ? 'border-red-500' : ''}
+										className={`bg-[#18181c] text-gray-200 border ${
+											errors.totalSeats ? 'border-red-500' : 'border-gray-700'
+										} focus:ring-orange-500`}
 									/>
 									{errors.totalSeats && (
 										<p className="text-red-500 text-sm mt-1">
@@ -539,10 +606,11 @@ export default function CreateEventPage() {
 						</div>
 
 						{/* Submit Button */}
-						<div className="flex justify-end gap-4 pt-6 border-t">
+						<div className="flex justify-end gap-4 pt-6 border-t border-gray-700">
 							<Button
 								type="button"
 								variant="outline"
+								className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
 								onClick={handleCancel}
 								disabled={isLoading}
 							>
@@ -551,7 +619,7 @@ export default function CreateEventPage() {
 							<Button
 								type="submit"
 								disabled={isLoading}
-								className="min-w-[120px]"
+								className="min-w-[120px] bg-orange-500 text-white hover:bg-orange-600 border-none"
 							>
 								{isLoading ? 'Creating...' : 'Create Event'}
 							</Button>

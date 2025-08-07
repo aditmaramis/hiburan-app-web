@@ -187,8 +187,8 @@ export default function AttendeeList({}: AttendeeListProps) {
 			{/* Header with Filter */}
 			<div className="flex justify-between items-center">
 				<div>
-					<h2 className="text-2xl font-bold text-gray-900">Event Attendees</h2>
-					<p className="text-gray-600">
+					<h2 className="text-2xl font-bold text-orange-400">Event Attendees</h2>
+					<p className="text-white">
 						Manage attendees for your events ({filteredAttendees.length} total)
 					</p>
 				</div>

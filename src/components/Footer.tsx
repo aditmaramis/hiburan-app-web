@@ -2,16 +2,23 @@ import Link from 'next/link';
 
 export default function Footer() {
 	return (
-		<footer className="glass-dark border-t border-white/20 text-white relative backdrop-blur-md">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<footer className="bg-gradient-to-t from-slate-900 to-transparent backdrop-blur-md border-t border-white/20 text-white relative overflow-hidden">
+			{/* Animated Background Elements */}
+			<div className="absolute inset-0 overflow-hidden">
+				<div className="absolute -bottom-20 -left-20 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+				<div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+			</div>
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 				<div className="grid md:grid-cols-4 gap-8">
 					{/* Company Info */}
 					<div className="col-span-1">
 						<div className="flex items-center gap-2 text-xl font-bold mb-4">
-							<div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+							<div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center backdrop-blur-sm">
 								<span className="text-white font-bold text-sm">H</span>
 							</div>
-							HiburanApp
+							<span className="bg-gradient-to-r from-white via-orange-200 to-orange-500 bg-clip-text text-transparent">
+								HiburanApp
+							</span>
 						</div>
 						<p className="text-white/70 mb-4">
 							Discover and book amazing events happening around you. From
